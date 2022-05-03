@@ -1,49 +1,30 @@
-/****************************************Copyright (c)****************************************************
-** 
-**                                      
-**
-**--------------File Info---------------------------------------------------------------------------------
-** File name:			main.c
-** modified Date:  		2017-6-20
-** Last Version:		V0.1
-** Descriptions:		  main ∫Ø ˝µ˜”√
-**
-** ∫√Ó“»Ûø∆ºº£¨–æ∆¨ ¬“µ≤ø----…Ó€⁄¡˙ª™”¶”√∑÷≤ø
-*********************************************************************************************************/
 #include "HAL_conf.h"
 #include "sys.h"
-/********************************************************************************************************
-**∫Ø ˝–≈œ¢ £∫int main (void)                          
-**π¶ƒ‹√Ë ˆ £∫
-** ‰»Î≤Œ ˝ £∫
-** ‰≥ˆ≤Œ ˝ £∫
-********************************************************************************************************/
+#include <stdint.h>
 
 int main(void)
 {
-	uint32_t  i;
-	GPIO_InitTypeDef GPIO_InitStructure;//∂®“ÂGPIO≥ı ºªØΩ·ππÃÂ±‰¡ø
-	RemapVtorTable();
-	SystemClk_HSEInit(RCC_PLLMul_20);//∆Ù∂ØPLL ±÷”£¨12MHz*20=240MHz
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOD, ENABLE);
+	u32 i;
 
-	//≈‰÷√¡¨Ω”LEDµƒGPIOŒ™Õ∆ÕÏ ‰≥ˆƒ£ Ω
-	GPIO_InitStructure.GPIO_Pin  =  GPIO_Pin_8;
+	GPIO_InitTypeDef GPIO_InitStructure;
+	RemapVtorTable();
+	SystemClk_HSEInit(RCC_PLLMul_20); // Start PLL clockÔºå12MHz*20=240MHz
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+
+	// Configure LED GPIO pin
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_Init(GPIOD, &GPIO_InitStructure);
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-
-	while(1)//Œﬁœﬁ—≠ª∑ 
+	while (1)
 	{
-		GPIO_SetBits(GPIOD, GPIO_Pin_8); //PC8 ‰≥ˆ∏ﬂµÁ∆Ω£¨µ„¡¡LED
-		for(i=0;i<2000000;i++);//—” ±
-		
-		GPIO_ResetBits(GPIOD, GPIO_Pin_8);//PD8 ‰≥ˆµÕµÁ∆Ω£¨œ®√LED
-		for(i=0;i<2000000;i++);//—” ±
+		GPIO_SetBits(GPIOA, GPIO_Pin_8); // PA8 High - LED on
+		for (i = 0; i < 2000000; i++)
+			; // delay
+
+		GPIO_ResetBits(GPIOA, GPIO_Pin_8); // PA8 Low - LED off
+		for (i = 0; i < 2000000; i++)
+			; // delay
 	}
-
 }
-
-
-
