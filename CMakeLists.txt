@@ -9,7 +9,7 @@ set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/arm-none-eabi-gcc.cmake)
 # Setup project, output and linker file
 project(GPIO_LED)
 set(EXECUTABLE ${PROJECT_NAME}.elf)
-set(LINKER_FILE ${CMAKE_SOURCE_DIR}/TK499.ld)
+set(LINKER_FILE ${CMAKE_SOURCE_DIR}/CMSIS_and_startup/TK499.ld)
 
 enable_language(C ASM)
 set(CMAKE_C_STANDARD 99)
@@ -83,6 +83,6 @@ add_custom_command(TARGET ${EXECUTABLE}
 # Optional: Create hex, bin and S-Record files after the build
 add_custom_command(TARGET ${EXECUTABLE}
         POST_BUILD
-        COMMAND ${CMAKE_OBJCOPY} -O srec --srec-len=64 ${EXECUTABLE} ${PROJECT_NAME}.s19
-        COMMAND ${CMAKE_OBJCOPY} -O ihex ${EXECUTABLE} ${PROJECT_NAME}.hex
+        # COMMAND ${CMAKE_OBJCOPY} -O srec --srec-len=64 ${EXECUTABLE} ${PROJECT_NAME}.s19
+        # COMMAND ${CMAKE_OBJCOPY} -O ihex ${EXECUTABLE} ${PROJECT_NAME}.hex
         COMMAND ${CMAKE_OBJCOPY} -O binary ${EXECUTABLE} ${PROJECT_NAME}.bin)
