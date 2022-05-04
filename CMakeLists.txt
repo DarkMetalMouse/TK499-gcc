@@ -7,7 +7,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/arm-none-eabi-gcc.cmake)
 
 # Setup project, output and linker file
-project(GPIO_LED)
+project(tk499)
 set(EXECUTABLE ${PROJECT_NAME}.elf)
 set(LINKER_FILE ${CMAKE_SOURCE_DIR}/CMSIS_and_startup/TK499.ld)
 
