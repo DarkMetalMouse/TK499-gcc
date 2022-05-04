@@ -24,8 +24,10 @@ set(SRC_FILES
         ./CMSIS_and_startup/startup_Tk499.c
         ./CMSIS_and_startup/sys.c
         ./project/bsp/main.c
+        ./project/bsp/LCD/LCD.c
         ./Hal_lib/src/HAL_gpio.c
         ./Hal_lib/src/HAL_rcc.c
+        ./Hal_lib/src/HAL_misc.c
         )
 
 # Build the executable based on the source files
@@ -42,6 +44,7 @@ target_include_directories(${EXECUTABLE} PRIVATE
         ./CMSIS_and_startup
         ./CMSIS_and_startup/CMSIS
         ./Hal_lib/inc/
+        ./project/bsp/LCD
         )
 
 # Compiler options
@@ -55,7 +58,7 @@ target_compile_options(${EXECUTABLE} PRIVATE
         -ffunction-sections
 
         -Wall
-        -O0
+        -O1
         -g
         )
 
