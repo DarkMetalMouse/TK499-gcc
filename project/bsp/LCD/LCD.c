@@ -1,6 +1,7 @@
 #include "tk499.h"
 #include "LCD.h"
 #include "ASCII.h"
+#include <stdlib.h>
 __attribute__((aligned(256))) u32 LTDC_Buf[XSIZE_PHYS * YSIZE_PHYS];
 
 void LCD_delay(volatile int time)
@@ -667,12 +668,16 @@ void DrawPixel(u16 x, u16 y, int Color)
  * @param bColor background color
  * @param draw_fg whether to g
  */
-void SPILCD_ShowChar(unsigned short x, unsigned short y, unsigned char num, unsigned int fColor, unsigned int bColor, unsigned char fill_bg)
+void SPILCD_ShowChar(u16 x, u16 y, unsigned char num, u32 fColor, u32 bColor, unsigned char fill_bg)
 {
 	unsigned char temp;
-	unsigned int pos, i, j;
-
+	u32 pos, i, j;
+	if (num < ' ' || num > '~') // printable ascii range
+	{
+		return;
+	}
 	num = num - ' '; // Get array index
+
 	i = num * 16;
 	for (pos = 0; pos < 16; pos++)
 	{
@@ -699,7 +704,7 @@ void SPILCD_ShowChar(unsigned short x, unsigned short y, unsigned char num, unsi
  * @param bColor background color
  * @param draw_fg whether to g
  */
-void LCD_PutString(unsigned short x, unsigned short y, char *s, unsigned int fColor, unsigned int bColor, unsigned char fill_bg)
+void LCD_PutString(u16 x, u16 y, char *s, u32 fColor, u32 bColor, unsigned char fill_bg)
 {
 	unsigned char l = 0;
 	while (*s) // until null char
@@ -707,5 +712,30 @@ void LCD_PutString(unsigned short x, unsigned short y, char *s, unsigned int fCo
 		SPILCD_ShowChar(x + l * 8, y, *s, fColor, bColor, fill_bg);
 		s++;
 		l++;
+	}
+}
+
+void LCD_DrawLine(u16 x0, u16 y0, u16 x1, u16 y1, u32 color)
+{
+	int dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+	int dy = -abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+	int err = dx + dy, e2; /* error value e_xy */
+
+	for (;;)
+	{ /* loop */
+		DrawPixel(x0, y0, color);
+		if (x0 == x1 && y0 == y1)
+			break;
+		e2 = 2 * err;
+		if (e2 >= dy)
+		{
+			err += dy;
+			x0 += sx;
+		} /* e_xy+e_x > 0 */
+		if (e2 <= dx)
+		{
+			err += dx;
+			y0 += sy;
+		} /* e_xy+e_y < 0 */
 	}
 }

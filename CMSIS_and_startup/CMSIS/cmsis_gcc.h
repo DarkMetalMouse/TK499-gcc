@@ -1,10 +1,11 @@
-/**************************************************************************/ /**
-                                                                              * @file     cmsis_gcc.h
-                                                                              * @brief    CMSIS Cortex-M Core Function/Instruction Header File
-                                                                              * @version  V4.30
-                                                                              * @date     20. October 2015
-                                                                              ******************************************************************************/
+/**************************************************************************
+ * @file     cmsis_gcc.h
+ * @brief    CMSIS Cortex-M Core Function/Instruction Header File
+ * @version  V4.30
+ * @date     20. October 2015
+ ******************************************************************************/
 /* Copyright (c) 2009 - 2015 ARM LIMITED
+
    All rights reserved.
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions are met:

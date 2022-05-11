@@ -28,6 +28,11 @@ set(SRC_FILES
         ./Hal_lib/src/HAL_gpio.c
         ./Hal_lib/src/HAL_rcc.c
         ./Hal_lib/src/HAL_misc.c
+        ./Hal_lib/src/HAL_uart.c
+        ./Hal_lib/src/HAL_i2c.c
+        ./project/bsp/UART/UART.c
+        ./project/bsp/TK499_I2C/TK499_I2C.c
+        ./project/bsp/touch/touch_CTP.c
         )
 
 # Build the executable based on the source files
@@ -43,6 +48,9 @@ target_include_directories(${EXECUTABLE} PRIVATE
         ./CMSIS_and_startup/CMSIS
         ./Hal_lib/inc/
         ./project/bsp/LCD
+        ./project/bsp/UART
+        ./project/bsp/TK499_I2C/
+        ./project/bsp/touch/
         )
 
 # Compiler options
