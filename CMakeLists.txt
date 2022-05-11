@@ -9,7 +9,7 @@ set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/arm-none-eabi-gcc.cmake)
 # Setup project, output and linker file
 project(tk499)
 set(EXECUTABLE ${PROJECT_NAME}.elf)
-set(LINKER_FILE ${CMAKE_SOURCE_DIR}/CMSIS_and_startup/TK499.ld)
+set(LINKER_FILE ${CMAKE_SOURCE_DIR}/CMSIS_and_startup/TKM32F499_FLASH.ld)
 
 enable_language(C ASM)
 set(CMAKE_C_STANDARD 99)
@@ -21,7 +21,7 @@ message(STATUS "CMAKE_TOOLCHAIN_FILE is: ${CMAKE_TOOLCHAIN_FILE}")
 
 # List of source files
 set(SRC_FILES
-        ./CMSIS_and_startup/startup_Tk499.c
+        ./CMSIS_and_startup/startup_tkm32f499.s
         ./CMSIS_and_startup/sys.c
         ./project/bsp/main.c
         ./project/bsp/LCD/LCD.c
@@ -35,8 +35,6 @@ add_executable(${EXECUTABLE} ${SRC_FILES})
 
 # List of compiler defines, prefix with -D compiler option
 target_compile_definitions(${EXECUTABLE} PRIVATE
-        -DARMCM4_FP
-        -D__MICROLIB
         )
 
 # List of includ directories
@@ -69,6 +67,7 @@ target_link_options(${EXECUTABLE} PRIVATE
         -mthumb
         -mfpu=fpv4-sp-d16
         -mfloat-abi=hard
+        -specs=nosys.specs
         -specs=nano.specs
         -lc
         -lm
