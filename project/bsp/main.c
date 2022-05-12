@@ -4,6 +4,16 @@
 #include "sys.h"
 #include "TK499_I2C.h"
 #include "touch_CTP.h"
+#include "timer.h"
+#include "lvgl.h"
+#include "lv_port_disp.h"
+#include "lv_port_indev.h"
+#include "ui.h"
+
+// void my_log_cb(const char *buf)
+// {
+//     send_str((char *)buf);
+// }
 
 int main(void)
 {
@@ -21,7 +31,10 @@ int main(void)
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 
     UartInit(UART1, 115200);
-    send_str("Hello World");
+    send_str("\n\n\n\n");
+
+    send_data(lv_is_initialized() ? '1' : '0');
+    send_str("\n\n\n\n");
 
     // send_str(" Welcome to use HJR TK499! \r\n");
     // putchar('A');
@@ -29,25 +42,27 @@ int main(void)
     LCD_Initial();
     I2CInitMasterMode(I2C1);
 
-    Lcd_ColorBox(0, 0, XSIZE_PHYS, YSIZE_PHYS, Green);
+    TIM3_Config(1000, 240); // 1mS
+
+    // Lcd_ColorBox(0, 0, XSIZE_PHYS, YSIZE_PHYS, Green);
     // Lcd_ColorBox(0, 0, 50, 50, Red);
     // Lcd_ColorBox(100, 30, 20, 300, Green);
 
     // LCD_DrawLine(20, 500, 320, 400, Black);
+    // lv_log_register_print_cb(my_log_cb);
+
+    lv_init();
+    // send_data('C');
+
+    lv_port_disp_init();
+    lv_port_indev_init();
+
+    ui_init();
+    GPIO_SetBits(GPIOA, GPIO_Pin_8);
 
     while (1)
     {
-        // fputc('A', stdout);
-        send_data('A');
-        // for (i = 0; i < 200000; i++)
-        //     ;
-
-        GPIO_SetBits(GPIOA, GPIO_Pin_8); // PA8 High - LED on
-        // for (i = 0; i < 200000; i++)
-        //     ;
-
-        Touch_Test();
-        GPIO_ResetBits(GPIOA, GPIO_Pin_8); // PA8 Low - LED off
-        Touch_Test();
+        // send_data('B');
+        lv_timer_handler();
     }
 }

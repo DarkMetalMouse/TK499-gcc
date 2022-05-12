@@ -30,16 +30,36 @@ set(SRC_FILES
         ./Hal_lib/src/HAL_misc.c
         ./Hal_lib/src/HAL_uart.c
         ./Hal_lib/src/HAL_i2c.c
+        ./Hal_lib/src/HAL_tim.c
         ./project/bsp/UART/UART.c
         ./project/bsp/TK499_I2C/TK499_I2C.c
         ./project/bsp/touch/touch_CTP.c
+        ./project/bsp/timer/timer.c
+        ./project/ui/ui_helpers.c
+        ./project/ui/ui.c
+
+
+        # ./project/lvgl/porting/lv_port_disp.c
+        # ./project/lvgl/porting/lv_port_indev.c
+        # ./project/lvgl/src/core/*.c
+        # ./project/lvgl/src/draw/*.c
+        # ./project/lvgl/src/extra/*.c
+        # ./project/lvgl/src/font/*.c
+        # ./project/lvgl/src/gpu/*.c
+        # ./project/lvgl/src/hal/*.c
+        # ./project/lvgl/src/misc/*.c
+        # ./project/lvgl/src/widgets/*.c
+
         )
 
+file(GLOB_RECURSE LVGL_SRC RELATIVE ${CMAKE_SOURCE_DIR} "./project/lvgl/*.c")
+
 # Build the executable based on the source files
-add_executable(${EXECUTABLE} ${SRC_FILES})
+add_executable(${EXECUTABLE} ${SRC_FILES} ${LVGL_SRC})
 
 # List of compiler defines, prefix with -D compiler option
 target_compile_definitions(${EXECUTABLE} PRIVATE
+        -DLV_LVGL_H_INCLUDE_SIMPLE
         )
 
 # List of includ directories
@@ -51,6 +71,21 @@ target_include_directories(${EXECUTABLE} PRIVATE
         ./project/bsp/UART
         ./project/bsp/TK499_I2C/
         ./project/bsp/touch/
+        ./project/bsp/timer/
+        ./project/ui/
+
+        ./project/
+        ./project/lvgl/
+        ./project/lvgl/porting/
+        ./project/lvgl/src/
+        ./project/lvgl/src/core/
+        ./project/lvgl/src/draw/
+        ./project/lvgl/src/extra/
+        ./project/lvgl/src/font/
+        ./project/lvgl/src/gpu/
+        ./project/lvgl/src/hal/
+        ./project/lvgl/src/misc/
+        ./project/lvgl/src/widgets/
         )
 
 # Compiler options

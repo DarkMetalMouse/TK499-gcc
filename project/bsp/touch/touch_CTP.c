@@ -21,22 +21,21 @@ int GUI_TOUCH_Measure(void)
 	{
 		*(buf + i) = I2CRXByte(I2C1); //库函数法读取IIC数据
 	}
-	//	if ((buf[2]&0x0f) == 1)
-	//	{
-	//		for(i=3;i<6;i++)
-	//		{
-	//			*(buf+i)=I2CRXByte(I2C1);//库函数法读取IIC数据
-	//		}
-	GUI_Value_X = 480 - ((int16_t)(buf[4] & 0x0F) << 8 | (int16_t)buf[5]);
-	GUI_Value_Y = (int16_t)(buf[2] & 0x0F) << 8 | (int16_t)buf[3];
-	touchInfo_flag = 1; //触摸有效
-						//	}
-						//	else
-						//	{
-						//		touchInfo_flag = 0;
-						//		GUI_Value_X =8000;
-						//		GUI_Value_Y =8000;
-						//	}
+	if ((buf[1] & 0x0f) == 1)
+	{
+
+		GUI_Value_X = 480 - 1 - ((int16_t)(buf[4] & 0x0F) << 8 | (int16_t)buf[5]);
+		if (GUI_Value_X < 0)
+			GUI_Value_X = 0;
+		GUI_Value_Y = (int16_t)(buf[2] & 0x0F) << 8 | (int16_t)buf[3];
+		touchInfo_flag = 1; //触摸有效
+	}
+	else
+	{
+		touchInfo_flag = 0;
+		GUI_Value_X = UINT16_MAX;
+		GUI_Value_Y = UINT16_MAX;
+	}
 }
 
 /****************************************************************************************
