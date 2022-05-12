@@ -133,8 +133,8 @@ SECTIONS
     _sbss = .;         /* define a global symbol at bss start */
     __bss_start__ = _sbss;
     *(.bss)
-
-
+    *(.bss*)
+    *(COMMON)
 
     _ebss = .;         /* define a global symbol at bss end */
     __bss_end__ = _ebss;
