@@ -9,6 +9,8 @@
 #include "lv_port_disp.h"
 #include "lv_port_indev.h"
 #include "ui.h"
+#include "ui_code.h"
+#include "srs_programmer.h"
 
 // void my_log_cb(const char *buf)
 // {
@@ -17,7 +19,7 @@
 
 int main(void)
 {
-    volatile u32 i;
+    // volatile u32 i;
     GPIO_InitTypeDef GPIO_InitStructure;
 
     RemapVtorTable();
@@ -31,15 +33,13 @@ int main(void)
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 
     UartInit(UART1, 115200);
-    send_str("\n\n\n\n");
-
-    send_data(lv_is_initialized() ? '1' : '0');
-    send_str("\n\n\n\n");
 
     // send_str(" Welcome to use HJR TK499! \r\n");
     // putchar('A');
 
     LCD_Initial();
+    srs_programmer_init(); // Must be called after display init because it uses PD6
+
     I2CInitMasterMode(I2C1);
 
     TIM3_Config(1000, 240); // 1mS
@@ -58,11 +58,27 @@ int main(void)
     lv_port_indev_init();
 
     ui_init();
-    GPIO_SetBits(GPIOA, GPIO_Pin_8);
-
+    ui_set_connection(false);
     while (1)
     {
-        // send_data('B');
+        if (lv_tick_get() % 50 == 0)
+        // if (0)
+        {
+            int angle = get_angle();
+
+            if (angle != INT32_MAX)
+            {
+
+                ui_set_connection(true);
+                ui_set_angle(angle);
+            }
+            else
+            {
+
+                ui_set_connection(false);
+            }
+        }
+
         lv_timer_handler();
     }
 }

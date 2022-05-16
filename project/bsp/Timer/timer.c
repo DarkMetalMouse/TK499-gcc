@@ -53,7 +53,7 @@ void TIM3_Config(u16 arr, u16 psc)
 
    TIM_Cmd(TIM3, ENABLE); //使能TIM8
 }
-int touch_time = 0;
+
 extern volatile unsigned char touchInfo_flag;
 void TIM3_IRQHandler(void) // TIM3??
 {
@@ -62,16 +62,10 @@ void TIM3_IRQHandler(void) // TIM3??
    if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET) //检查TIM3更新中断发生与否
    {
       lv_tick_inc(1);
-      //			if ((GPIOB->IDR & GPIO_Pin_3) == 0)if(touch_time%50==0)I2C1->IC_DATA_CMD = 0x01;
       if ((GPIOB->IDR & GPIO_Pin_3) == 0)
-         // {
-         //				if(GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_3)==0)GUI_TOUCH_Measure();
-         // if ((GPIOB->IDR & GPIO_Pin_3) == 0)
+      {
          GUI_TOUCH_Measure();
-      // else
-      // touchInfo_flag = 0; //触摸无效
-      // }
-      touch_time++;
+      }
    }
    TIM_ClearITPendingBit(TIM3, TIM_IT_Update); //清除TIMx更新中断标志
 }

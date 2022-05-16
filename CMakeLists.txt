@@ -37,6 +37,8 @@ set(SRC_FILES
         ./project/bsp/timer/timer.c
         ./project/ui/ui_helpers.c
         ./project/ui/ui.c
+        ./project/ui/ui_code.c
+        ./project/bsp/srs_programmer/srs_programmer.c
 
 
         # ./project/lvgl/porting/lv_port_disp.c
@@ -73,6 +75,7 @@ target_include_directories(${EXECUTABLE} PRIVATE
         ./project/bsp/touch/
         ./project/bsp/timer/
         ./project/ui/
+        ./project/bsp/srs_programmer/
 
         ./project/
         ./project/lvgl/
