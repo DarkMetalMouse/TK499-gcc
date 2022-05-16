@@ -8,3 +8,5 @@ build.ninja
 .ninja_log
 *.elf
 *.map
+
+.vscode
