@@ -53,7 +53,7 @@ int get_angle()
     if (memcmp((u8 *)rx_buf, get_angle_packet, sizeof(get_angle_packet)) != 0)
         return INT32_MAX;
 
-    timeout = 1000;
+    timeout = 2000;
     while (rx_i < 9 && timeout != 0)
     {
         timeout--;
@@ -77,7 +77,7 @@ int get_angle()
 
     angle = ((u16)(rx_buf[13] << 8)) + ((u16)rx_buf[14]);
 
-    return map(angle, 0, -180, 1023, 179);
+    return map(angle, 0, -180 + 20, 1023, 179 - 20); // the range of the potentiometer is 320 degrees
 }
 
 void srs_programmer_init()
