@@ -12,7 +12,7 @@ u8 buf[10];
 char string[32];
 volatile int GUI_Value_X, GUI_Value_Y;
 volatile unsigned char touchInfo_flag;
-int GUI_TOUCH_Measure(void)
+void GUI_TOUCH_Measure(void)
 {
 	int i;
 	I2CTXByte(I2C1, CMD_WRITE, 0x01);

@@ -793,16 +793,15 @@ typedef struct
 
 typedef struct
 {
-  __IO uint32_t TDR;
-  __IO uint32_t RDR;
-  __IO uint32_t CSR;
-  __IO uint32_t ISR;
-  __IO uint32_t IER;
-  __IO uint32_t ICR;
-  __IO uint32_t GCR;
-  __IO uint32_t CCR;
-  __IO uint32_t BRR;
-  __IO uint32_t FRABRG;
+  __IO uint32_t TDR; // Transmit Data Register
+  __IO uint32_t RDR; // Receive Data Register
+  __IO uint32_t CSR; // Current Status Register
+  __IO uint32_t ISR; // Interrupt Status Register
+  __IO uint32_t IER; // Interrupt Enable Register
+  __IO uint32_t ICR; // Interrupt Clear Register
+  __IO uint32_t GCR; // Global Control Register
+  __IO uint32_t CCR; // General Control Register
+  __IO uint32_t BRR; // Baud Rate Register
 
 } UART_TypeDef;
 

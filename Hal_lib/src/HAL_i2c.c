@@ -68,7 +68,7 @@
 #define IC_TAR_ENDUAL_Set         ((uint16_t)0x1000)
 #define IC_TAR_ENDUAL_Reset       ((uint16_t)0xEFFF)
 
-/* I2C SPECIAL、GC_OR_START bits mask */
+/* I2C SPECIAL锟斤拷GC_OR_START bits mask */
 #define IC_TAR_GC_Set            ((uint16_t)0x0800)
 #define IC_TAR_GC_Reset          ((uint16_t)0xF7FF)
 
@@ -78,7 +78,7 @@
 //static
  uint8_t I2C_CMD_DIR = 0;
 
-/*新增加的用户变量，外部调用时需要更新该变量值*/
+/*锟斤拷锟斤拷锟接碉拷锟矫伙拷锟斤拷锟斤拷锟斤拷锟解部锟斤拷锟斤拷时锟斤拷要锟斤拷锟铰该憋拷锟斤拷值*/
 uint16_t I2C_DMA_DIR = 0;  
 
 /** 
@@ -636,7 +636,6 @@ ErrorStatus I2C_CheckEvent(I2C_TypeDef* I2Cx, uint32_t I2C_EVENT)
 FlagStatus I2C_GetFlagStatus(I2C_TypeDef* I2Cx, uint32_t I2C_FLAG)
 {
   FlagStatus bitstatus = RESET;
-  __IO uint32_t i2creg = 0, i2cxbase = 0;
   /* Check the parameters */
   assert_param(IS_I2C_ALL_PERIPH(I2Cx));
   assert_param(IS_I2C_GET_FLAG(I2C_FLAG));
@@ -684,7 +683,7 @@ FlagStatus I2C_GetFlagStatus(I2C_TypeDef* I2Cx, uint32_t I2C_FLAG)
 */
 void I2C_ClearFlag(I2C_TypeDef* I2Cx, uint32_t I2C_FLAG)
 {
-  __IO uint32_t i2creg = 0, i2cxbase = 0;
+  __IO uint32_t i2cxbase = 0;
   /* Check the parameters */
   assert_param(IS_I2C_ALL_PERIPH(I2Cx));
   assert_param(IS_I2C_CLEAR_FLAG(I2C_FLAG));
