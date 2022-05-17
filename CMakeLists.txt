@@ -38,6 +38,7 @@ set(SRC_FILES
         ./project/ui/ui_helpers.c
         ./project/ui/ui.c
         ./project/ui/ui_code.c
+        ./project/ui/ui_events.c
         ./project/bsp/srs_programmer/srs_programmer.c
 
 

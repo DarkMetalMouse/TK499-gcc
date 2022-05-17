@@ -10,8 +10,23 @@
 lv_obj_t * ui_MainScreen;
 lv_obj_t * ui_HeaderPanel;
 lv_obj_t * ui_ConnectionLabel;
-lv_obj_t * ui_AngleArc;
-lv_obj_t * ui_AngleLabel;
+lv_obj_t * ui_RightAngleArc;
+lv_obj_t * ui_RightAngleLabel;
+lv_obj_t * ui_RightAngleTextArea;
+lv_obj_t * ui_LeftAngleArc;
+lv_obj_t * ui_LeftAngleLabel;
+lv_obj_t * ui_RightAngleTextArea1;
+lv_obj_t * ui_ModePanel;
+lv_obj_t * ui_ModeSwitch;
+lv_obj_t * ui_ContinousModeLabel;
+lv_obj_t * ui_ServoModeLabel;
+lv_obj_t * ui_GetAngleLeftButton;
+lv_obj_t * ui_GetAngleLeftLabel;
+lv_obj_t * ui_GetAngleRightButton;
+lv_obj_t * ui_GetAngleRgihtLabel;
+lv_obj_t * ui_ProgramButton;
+lv_obj_t * ui_ProgramButtonLabel;
+lv_obj_t * ui_Keyboard;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 32
@@ -24,6 +39,88 @@ lv_obj_t * ui_AngleLabel;
 ///////////////////// ANIMATIONS ////////////////////
 
 ///////////////////// FUNCTIONS ////////////////////
+static void ui_event_MainScreen(lv_event_t * e)
+{
+    lv_event_code_t event = lv_event_get_code(e);
+    lv_obj_t * ta = lv_event_get_target(e);
+    if(event == LV_EVENT_CLICKED) {
+        _ui_flag_modify(ui_Keyboard, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+    }
+}
+static void ui_event_RightAngleArc(lv_event_t * e)
+{
+    lv_event_code_t event = lv_event_get_code(e);
+    lv_obj_t * ta = lv_event_get_target(e);
+    if(event == LV_EVENT_VALUE_CHANGED) {
+        _ui_arc_set_text_value(ui_RightAngleLabel, ta, "", "");
+    }
+}
+static void ui_event_RightAngleLabel(lv_event_t * e)
+{
+    lv_event_code_t event = lv_event_get_code(e);
+    lv_obj_t * ta = lv_event_get_target(e);
+    if(event == LV_EVENT_CLICKED) {
+        _ui_flag_modify(ui_Keyboard, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+    }
+}
+static void ui_event_LeftAngleArc(lv_event_t * e)
+{
+    lv_event_code_t event = lv_event_get_code(e);
+    lv_obj_t * ta = lv_event_get_target(e);
+    if(event == LV_EVENT_VALUE_CHANGED) {
+        _ui_arc_set_text_value(ui_LeftAngleLabel, ta, "", "");
+    }
+}
+static void ui_event_LeftAngleLabel(lv_event_t * e)
+{
+    lv_event_code_t event = lv_event_get_code(e);
+    lv_obj_t * ta = lv_event_get_target(e);
+    if(event == LV_EVENT_PRESSED) {
+        _ui_flag_modify(ui_Keyboard, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+    }
+}
+static void ui_event_GetAngleLeftButton(lv_event_t * e)
+{
+    lv_event_code_t event = lv_event_get_code(e);
+    lv_obj_t * ta = lv_event_get_target(e);
+    if(event == LV_EVENT_CLICKED) {
+        set_left_angle_from_servo(e);
+    }
+}
+static void ui_event_GetAngleRightButton(lv_event_t * e)
+{
+    lv_event_code_t event = lv_event_get_code(e);
+    lv_obj_t * ta = lv_event_get_target(e);
+    if(event == LV_EVENT_CLICKED) {
+        set_right_angle_from_servo(e);
+    }
+}
+static void ui_event_ProgramButton(lv_event_t * e)
+{
+    lv_event_code_t event = lv_event_get_code(e);
+    lv_obj_t * ta = lv_event_get_target(e);
+    if(event == LV_EVENT_CLICKED) {
+        program_servo(e);
+        _ui_state_modify(ui_ProgramButton, LV_STATE_DISABLED, _UI_MODIFY_STATE_ADD);
+    }
+}
+static void ui_event_Keyboard(lv_event_t * e)
+{
+    lv_event_code_t event = lv_event_get_code(e);
+    lv_obj_t * ta = lv_event_get_target(e);
+    if(event == LV_EVENT_DEFOCUSED) {
+        _ui_flag_modify(ui_Keyboard, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+    }
+    if(event == LV_EVENT_CANCEL) {
+        _ui_flag_modify(ui_Keyboard, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+    }
+    if(event == LV_EVENT_READY) {
+        _ui_flag_modify(ui_Keyboard, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+    }
+    if(event == LV_EVENT_VALUE_CHANGED) {
+        keyboard_key_pressed(e);
+    }
+}
 
 ///////////////////// SCREENS ////////////////////
 void ui_MainScreen_screen_init(void)
@@ -34,6 +131,8 @@ void ui_MainScreen_screen_init(void)
     ui_MainScreen = lv_obj_create(NULL);
 
     lv_obj_clear_flag(ui_MainScreen, LV_OBJ_FLAG_SCROLLABLE);
+
+    lv_obj_add_event_cb(ui_MainScreen, ui_event_MainScreen, LV_EVENT_ALL, NULL);
 
     // ui_HeaderPanel
 
@@ -48,6 +147,8 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_align(ui_HeaderPanel, LV_ALIGN_TOP_MID);
 
     lv_obj_clear_flag(ui_HeaderPanel, LV_OBJ_FLAG_SCROLLABLE);
+
+    lv_obj_set_scrollbar_mode(ui_HeaderPanel, LV_SCROLLBAR_MODE_OFF);
 
     lv_obj_set_style_radius(ui_HeaderPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
@@ -70,44 +171,325 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_style_text_opa(ui_ConnectionLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_ConnectionLabel, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    // ui_AngleArc
+    // ui_RightAngleArc
 
-    ui_AngleArc = lv_arc_create(ui_MainScreen);
+    ui_RightAngleArc = lv_arc_create(ui_MainScreen);
 
-    lv_obj_set_width(ui_AngleArc, 150);
-    lv_obj_set_height(ui_AngleArc, 150);
+    lv_obj_set_width(ui_RightAngleArc, 240);
+    lv_obj_set_height(ui_RightAngleArc, 240);
 
-    lv_obj_set_x(ui_AngleArc, 2);
-    lv_obj_set_y(ui_AngleArc, 0);
+    lv_obj_set_x(ui_RightAngleArc, lv_pct(20));
+    lv_obj_set_y(ui_RightAngleArc, lv_pct(-6));
 
-    lv_obj_set_align(ui_AngleArc, LV_ALIGN_CENTER);
+    lv_obj_set_align(ui_RightAngleArc, LV_ALIGN_CENTER);
 
-    lv_obj_add_state(ui_AngleArc, LV_STATE_DISABLED);
+    lv_arc_set_range(ui_RightAngleArc, 0, 135);
+    lv_arc_set_bg_angles(ui_RightAngleArc, 270, 45);
 
-    lv_arc_set_range(ui_AngleArc, -179, 180);
-    lv_arc_set_bg_angles(ui_AngleArc, 0, 360);
+    lv_obj_add_event_cb(ui_RightAngleArc, ui_event_RightAngleArc, LV_EVENT_ALL, NULL);
 
-    lv_obj_set_style_arc_color(ui_AngleArc, lv_color_hex(0x2F3237), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_opa(ui_AngleArc, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_width(ui_RightAngleArc, 22, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_set_style_arc_color(ui_AngleArc, lv_color_hex(0x2F3237), LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_opa(ui_AngleArc, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_width(ui_RightAngleArc, 22, LV_PART_INDICATOR | LV_STATE_DEFAULT);
 
-    // ui_AngleLabel
+    // ui_RightAngleLabel
 
-    ui_AngleLabel = lv_label_create(ui_AngleArc);
+    ui_RightAngleLabel = lv_label_create(ui_RightAngleArc);
 
-    lv_obj_set_width(ui_AngleLabel, LV_SIZE_CONTENT);
-    lv_obj_set_height(ui_AngleLabel, LV_SIZE_CONTENT);
+    lv_obj_set_width(ui_RightAngleLabel, LV_SIZE_CONTENT);
+    lv_obj_set_height(ui_RightAngleLabel, LV_SIZE_CONTENT);
 
-    lv_obj_set_x(ui_AngleLabel, 0);
-    lv_obj_set_y(ui_AngleLabel, 0);
+    lv_obj_set_y(ui_RightAngleLabel, 0);
+    lv_obj_set_x(ui_RightAngleLabel, lv_pct(0));
 
-    lv_obj_set_align(ui_AngleLabel, LV_ALIGN_CENTER);
+    lv_obj_set_align(ui_RightAngleLabel, LV_ALIGN_CENTER);
 
-    lv_label_set_text(ui_AngleLabel, "0");
+    lv_label_set_text(ui_RightAngleLabel, "0");
 
-    lv_obj_set_style_text_font(ui_AngleLabel, &lv_font_montserrat_40, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_flag(ui_RightAngleLabel, LV_OBJ_FLAG_CLICKABLE);
+
+    lv_obj_add_event_cb(ui_RightAngleLabel, ui_event_RightAngleLabel, LV_EVENT_ALL, NULL);
+    lv_obj_set_style_text_font(ui_RightAngleLabel, &lv_font_montserrat_40, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // ui_RightAngleTextArea
+
+    ui_RightAngleTextArea = lv_textarea_create(ui_RightAngleArc);
+
+    lv_obj_set_width(ui_RightAngleTextArea, lv_pct(40));
+    lv_obj_set_height(ui_RightAngleTextArea, LV_SIZE_CONTENT);
+
+    lv_obj_set_x(ui_RightAngleTextArea, 0);
+    lv_obj_set_y(ui_RightAngleTextArea, 0);
+
+    lv_obj_set_align(ui_RightAngleTextArea, LV_ALIGN_CENTER);
+
+    if("0123456789" == "") lv_textarea_set_accepted_chars(ui_RightAngleTextArea, NULL);
+    else lv_textarea_set_accepted_chars(ui_RightAngleTextArea, "0123456789");
+
+    lv_textarea_set_max_length(ui_RightAngleTextArea, 3);
+    lv_textarea_set_text(ui_RightAngleTextArea, "0");
+    lv_textarea_set_placeholder_text(ui_RightAngleTextArea, "");
+    lv_textarea_set_one_line(ui_RightAngleTextArea, true);
+
+    lv_obj_add_flag(ui_RightAngleTextArea, LV_OBJ_FLAG_HIDDEN);
+
+    lv_obj_set_style_text_align(ui_RightAngleTextArea, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_RightAngleTextArea, &lv_font_montserrat_40, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_RightAngleTextArea, lv_color_hex(0x15171A), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_RightAngleTextArea, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_RightAngleTextArea, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // ui_LeftAngleArc
+
+    ui_LeftAngleArc = lv_arc_create(ui_MainScreen);
+
+    lv_obj_set_width(ui_LeftAngleArc, 240);
+    lv_obj_set_height(ui_LeftAngleArc, 240);
+
+    lv_obj_set_x(ui_LeftAngleArc, lv_pct(-20));
+    lv_obj_set_y(ui_LeftAngleArc, lv_pct(-6));
+
+    lv_obj_set_align(ui_LeftAngleArc, LV_ALIGN_CENTER);
+
+    lv_arc_set_range(ui_LeftAngleArc, -135, 0);
+    lv_arc_set_bg_angles(ui_LeftAngleArc, 135, 270);
+    lv_arc_set_mode(ui_LeftAngleArc, LV_ARC_MODE_REVERSE);
+
+    lv_obj_add_event_cb(ui_LeftAngleArc, ui_event_LeftAngleArc, LV_EVENT_ALL, NULL);
+
+    lv_obj_set_style_arc_width(ui_LeftAngleArc, 22, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_arc_width(ui_LeftAngleArc, 22, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+
+    // ui_LeftAngleLabel
+
+    ui_LeftAngleLabel = lv_label_create(ui_LeftAngleArc);
+
+    lv_obj_set_width(ui_LeftAngleLabel, LV_SIZE_CONTENT);
+    lv_obj_set_height(ui_LeftAngleLabel, LV_SIZE_CONTENT);
+
+    lv_obj_set_y(ui_LeftAngleLabel, 0);
+    lv_obj_set_x(ui_LeftAngleLabel, lv_pct(0));
+
+    lv_obj_set_align(ui_LeftAngleLabel, LV_ALIGN_CENTER);
+
+    lv_label_set_text(ui_LeftAngleLabel, "0");
+
+    lv_obj_add_flag(ui_LeftAngleLabel, LV_OBJ_FLAG_CLICKABLE);
+
+    lv_obj_add_event_cb(ui_LeftAngleLabel, ui_event_LeftAngleLabel, LV_EVENT_ALL, NULL);
+    lv_obj_set_style_text_font(ui_LeftAngleLabel, &lv_font_montserrat_40, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // ui_RightAngleTextArea1
+
+    ui_RightAngleTextArea1 = lv_textarea_create(ui_LeftAngleArc);
+
+    lv_obj_set_width(ui_RightAngleTextArea1, lv_pct(40));
+    lv_obj_set_height(ui_RightAngleTextArea1, LV_SIZE_CONTENT);
+
+    lv_obj_set_x(ui_RightAngleTextArea1, 0);
+    lv_obj_set_y(ui_RightAngleTextArea1, 0);
+
+    lv_obj_set_align(ui_RightAngleTextArea1, LV_ALIGN_CENTER);
+
+    if("0123456789" == "") lv_textarea_set_accepted_chars(ui_RightAngleTextArea1, NULL);
+    else lv_textarea_set_accepted_chars(ui_RightAngleTextArea1, "0123456789");
+
+    lv_textarea_set_max_length(ui_RightAngleTextArea1, 3);
+    lv_textarea_set_text(ui_RightAngleTextArea1, "0");
+    lv_textarea_set_placeholder_text(ui_RightAngleTextArea1, "");
+    lv_textarea_set_one_line(ui_RightAngleTextArea1, true);
+
+    lv_obj_add_flag(ui_RightAngleTextArea1, LV_OBJ_FLAG_HIDDEN);
+
+    lv_obj_set_style_text_align(ui_RightAngleTextArea1, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_RightAngleTextArea1, &lv_font_montserrat_40, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_RightAngleTextArea1, lv_color_hex(0x15171A), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_RightAngleTextArea1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_RightAngleTextArea1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // ui_ModePanel
+
+    ui_ModePanel = lv_obj_create(ui_MainScreen);
+
+    lv_obj_set_width(ui_ModePanel, 379);
+    lv_obj_set_height(ui_ModePanel, 50);
+
+    lv_obj_set_x(ui_ModePanel, -22);
+    lv_obj_set_y(ui_ModePanel, lv_pct(13));
+
+    lv_obj_set_align(ui_ModePanel, LV_ALIGN_CENTER);
+
+    lv_obj_clear_flag(ui_ModePanel, LV_OBJ_FLAG_SCROLLABLE);
+
+    lv_obj_set_style_radius(ui_ModePanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_ModePanel, lv_color_hex(0x15171A), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_ModePanel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_ModePanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // ui_ModeSwitch
+
+    ui_ModeSwitch = lv_switch_create(ui_ModePanel);
+
+    lv_obj_set_width(ui_ModeSwitch, 70);
+    lv_obj_set_height(ui_ModeSwitch, 35);
+
+    lv_obj_set_x(ui_ModeSwitch, 0);
+    lv_obj_set_y(ui_ModeSwitch, 0);
+
+    lv_obj_set_align(ui_ModeSwitch, LV_ALIGN_CENTER);
+
+    // ui_ContinousModeLabel
+
+    ui_ContinousModeLabel = lv_label_create(ui_ModePanel);
+
+    lv_obj_set_width(ui_ContinousModeLabel, LV_SIZE_CONTENT);
+    lv_obj_set_height(ui_ContinousModeLabel, LV_SIZE_CONTENT);
+
+    lv_obj_set_x(ui_ContinousModeLabel, 107);
+    lv_obj_set_y(ui_ContinousModeLabel, lv_pct(-5));
+
+    lv_obj_set_align(ui_ContinousModeLabel, LV_ALIGN_CENTER);
+
+    lv_label_set_text(ui_ContinousModeLabel, "Continuous");
+
+    lv_obj_set_style_text_font(ui_ContinousModeLabel, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // ui_ServoModeLabel
+
+    ui_ServoModeLabel = lv_label_create(ui_ModePanel);
+
+    lv_obj_set_width(ui_ServoModeLabel, LV_SIZE_CONTENT);
+    lv_obj_set_height(ui_ServoModeLabel, LV_SIZE_CONTENT);
+
+    lv_obj_set_x(ui_ServoModeLabel, -72);
+    lv_obj_set_y(ui_ServoModeLabel, lv_pct(3));
+
+    lv_obj_set_align(ui_ServoModeLabel, LV_ALIGN_CENTER);
+
+    lv_label_set_text(ui_ServoModeLabel, "Servo");
+
+    lv_obj_set_style_text_font(ui_ServoModeLabel, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // ui_GetAngleLeftButton
+
+    ui_GetAngleLeftButton = lv_btn_create(ui_MainScreen);
+
+    lv_obj_set_width(ui_GetAngleLeftButton, 120);
+    lv_obj_set_height(ui_GetAngleLeftButton, 60);
+
+    lv_obj_set_x(ui_GetAngleLeftButton, lv_pct(-24));
+    lv_obj_set_y(ui_GetAngleLeftButton, lv_pct(-29));
+
+    lv_obj_set_align(ui_GetAngleLeftButton, LV_ALIGN_CENTER);
+
+    lv_obj_add_flag(ui_GetAngleLeftButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+    lv_obj_clear_flag(ui_GetAngleLeftButton, LV_OBJ_FLAG_SCROLLABLE);
+
+    lv_obj_add_event_cb(ui_GetAngleLeftButton, ui_event_GetAngleLeftButton, LV_EVENT_ALL, NULL);
+
+    // ui_GetAngleLeftLabel
+
+    ui_GetAngleLeftLabel = lv_label_create(ui_GetAngleLeftButton);
+
+    lv_obj_set_width(ui_GetAngleLeftLabel, LV_SIZE_CONTENT);
+    lv_obj_set_height(ui_GetAngleLeftLabel, LV_SIZE_CONTENT);
+
+    lv_obj_set_y(ui_GetAngleLeftLabel, 0);
+    lv_obj_set_x(ui_GetAngleLeftLabel, lv_pct(0));
+
+    lv_obj_set_align(ui_GetAngleLeftLabel, LV_ALIGN_CENTER);
+
+    lv_label_set_text(ui_GetAngleLeftLabel, "Get Angle");
+
+    lv_obj_set_style_text_font(ui_GetAngleLeftLabel, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // ui_GetAngleRightButton
+
+    ui_GetAngleRightButton = lv_btn_create(ui_MainScreen);
+
+    lv_obj_set_width(ui_GetAngleRightButton, 120);
+    lv_obj_set_height(ui_GetAngleRightButton, 60);
+
+    lv_obj_set_x(ui_GetAngleRightButton, lv_pct(24));
+    lv_obj_set_y(ui_GetAngleRightButton, lv_pct(-29));
+
+    lv_obj_set_align(ui_GetAngleRightButton, LV_ALIGN_CENTER);
+
+    lv_obj_add_flag(ui_GetAngleRightButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+    lv_obj_clear_flag(ui_GetAngleRightButton, LV_OBJ_FLAG_SCROLLABLE);
+
+    lv_obj_add_event_cb(ui_GetAngleRightButton, ui_event_GetAngleRightButton, LV_EVENT_ALL, NULL);
+
+    // ui_GetAngleRgihtLabel
+
+    ui_GetAngleRgihtLabel = lv_label_create(ui_GetAngleRightButton);
+
+    lv_obj_set_width(ui_GetAngleRgihtLabel, LV_SIZE_CONTENT);
+    lv_obj_set_height(ui_GetAngleRgihtLabel, LV_SIZE_CONTENT);
+
+    lv_obj_set_x(ui_GetAngleRgihtLabel, 0);
+    lv_obj_set_y(ui_GetAngleRgihtLabel, 0);
+
+    lv_obj_set_align(ui_GetAngleRgihtLabel, LV_ALIGN_CENTER);
+
+    lv_label_set_text(ui_GetAngleRgihtLabel, "Get Angle");
+
+    lv_obj_set_style_text_font(ui_GetAngleRgihtLabel, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // ui_ProgramButton
+
+    ui_ProgramButton = lv_btn_create(ui_MainScreen);
+
+    lv_obj_set_width(ui_ProgramButton, 209);
+    lv_obj_set_height(ui_ProgramButton, 86);
+
+    lv_obj_set_x(ui_ProgramButton, 0);
+    lv_obj_set_y(ui_ProgramButton, lv_pct(25));
+
+    lv_obj_set_align(ui_ProgramButton, LV_ALIGN_CENTER);
+
+    lv_obj_add_flag(ui_ProgramButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+    lv_obj_clear_flag(ui_ProgramButton, LV_OBJ_FLAG_SCROLLABLE);
+
+    lv_obj_add_event_cb(ui_ProgramButton, ui_event_ProgramButton, LV_EVENT_ALL, NULL);
+
+    // ui_ProgramButtonLabel
+
+    ui_ProgramButtonLabel = lv_label_create(ui_ProgramButton);
+
+    lv_obj_set_width(ui_ProgramButtonLabel, LV_SIZE_CONTENT);
+    lv_obj_set_height(ui_ProgramButtonLabel, LV_SIZE_CONTENT);
+
+    lv_obj_set_x(ui_ProgramButtonLabel, 0);
+    lv_obj_set_y(ui_ProgramButtonLabel, 0);
+
+    lv_obj_set_align(ui_ProgramButtonLabel, LV_ALIGN_CENTER);
+
+    lv_label_set_text(ui_ProgramButtonLabel, "Program");
+
+    lv_obj_set_style_text_font(ui_ProgramButtonLabel, &lv_font_montserrat_40, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // ui_Keyboard
+
+    ui_Keyboard = lv_keyboard_create(ui_MainScreen);
+
+    lv_keyboard_set_mode(ui_Keyboard, LV_KEYBOARD_MODE_NUMBER);
+
+    lv_obj_set_width(ui_Keyboard, lv_pct(100));
+    lv_obj_set_height(ui_Keyboard, lv_pct(40));
+
+    lv_obj_set_x(ui_Keyboard, 0);
+    lv_obj_set_y(ui_Keyboard, 0);
+
+    lv_obj_set_align(ui_Keyboard, LV_ALIGN_BOTTOM_MID);
+
+    lv_obj_add_flag(ui_Keyboard, LV_OBJ_FLAG_HIDDEN);
+
+    lv_obj_add_event_cb(ui_Keyboard, ui_event_Keyboard, LV_EVENT_ALL, NULL);
+
+    // POST CALLS
+    lv_keyboard_set_textarea(ui_Keyboard, ui_RightAngleTextArea);
 
 }
 

@@ -59,10 +59,27 @@ int main(void)
 
     ui_init();
     ui_set_connection(false);
+    lv_arc_set_value(ui_LeftAngleArc, 0);
     while (1)
     {
-        if (lv_tick_get() % 50 == 0)
-        // if (0)
+        switch (get_programming_status())
+        {
+        case PROGRAMMING:
+            break;
+        case PROGRAMMING_SUCCESS:
+            lv_obj_clear_state(ui_ProgramButton, LV_STATE_DISABLED);
+
+            break;
+        case PROGRAMMING_FAIL:
+            lv_obj_clear_state(ui_ProgramButton, LV_STATE_DISABLED);
+
+            break;
+        default:
+            break;
+        }
+
+        // if (lv_tick_get() % 50 == 0)
+        if (0)
         {
             int angle = get_angle();
 
