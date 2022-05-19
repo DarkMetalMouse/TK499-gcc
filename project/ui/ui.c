@@ -45,14 +45,6 @@ lv_obj_t * ui_PWMControlLabel;
 ///////////////////// ANIMATIONS ////////////////////
 
 ///////////////////// FUNCTIONS ////////////////////
-static void ui_event_MainScreen(lv_event_t * e)
-{
-    lv_event_code_t event = lv_event_get_code(e);
-    lv_obj_t * ta = lv_event_get_target(e);
-    if(event == LV_EVENT_CLICKED) {
-        _ui_flag_modify(ui_MainScreen, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
-    }
-}
 static void ui_event_RightAngleArc(lv_event_t * e)
 {
     lv_event_code_t event = lv_event_get_code(e);
@@ -129,8 +121,6 @@ void ui_MainScreen_screen_init(void)
     ui_MainScreen = lv_obj_create(NULL);
 
     lv_obj_clear_flag(ui_MainScreen, LV_OBJ_FLAG_SCROLLABLE);
-
-    lv_obj_add_event_cb(ui_MainScreen, ui_event_MainScreen, LV_EVENT_ALL, NULL);
 
     // ui_HeaderPanel
 
