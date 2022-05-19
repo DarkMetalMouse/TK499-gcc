@@ -66,12 +66,15 @@ int main(void)
         switch (get_programming_status())
         {
         case PROGRAMMING:
+            lv_label_set_text(ui_ConnectionLabel, "...");
             break;
         case PROGRAMMING_SUCCESS:
+            lv_label_set_text(ui_ConnectionLabel, "PROGRAMMING SUCCEED");
             lv_obj_clear_state(ui_ProgramButton, LV_STATE_DISABLED);
 
             break;
         case PROGRAMMING_FAIL:
+            lv_label_set_text(ui_ConnectionLabel, "PROGRAMMING FAILED");
             lv_obj_clear_state(ui_ProgramButton, LV_STATE_DISABLED);
 
             break;

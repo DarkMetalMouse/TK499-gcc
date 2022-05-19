@@ -172,10 +172,10 @@ void ui_MainScreen_screen_init(void)
 
     lv_obj_set_align(ui_ConnectionLabel, LV_ALIGN_CENTER);
 
-    lv_label_set_text(ui_ConnectionLabel, "DISCONNECTED");
+    lv_label_set_text(ui_ConnectionLabel, "");
     lv_label_set_recolor(ui_ConnectionLabel, "true");
 
-    lv_obj_set_style_text_color(ui_ConnectionLabel, lv_color_hex(0xDF1717), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui_ConnectionLabel, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_ConnectionLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_ConnectionLabel, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
