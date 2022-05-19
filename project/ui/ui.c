@@ -28,8 +28,6 @@ lv_obj_t * ui_ProgramButton;
 lv_obj_t * ui_ProgramButtonLabel;
 lv_obj_t * ui_PWMArc;
 lv_obj_t * ui_PWMLabel;
-lv_obj_t * ui_SwipeTestButton;
-lv_obj_t * ui_SwipeTestLabel;
 lv_obj_t * ui_Panel1;
 lv_obj_t * ui_ReadConfigurationButton;
 lv_obj_t * ui_ReadConfigurationLabel;
@@ -103,14 +101,6 @@ static void ui_event_PWMArc(lv_event_t * e)
     if(event == LV_EVENT_VALUE_CHANGED) {
         _ui_arc_set_text_value(ui_PWMLabel, ta, "", "%");
         set_pwm(e);
-    }
-}
-static void ui_event_SwipeTestButton(lv_event_t * e)
-{
-    lv_event_code_t event = lv_event_get_code(e);
-    lv_obj_t * ta = lv_event_get_target(e);
-    if(event == LV_EVENT_CLICKED) {
-        start_swipe_test(e);
     }
 }
 static void ui_event_ReadConfigurationButton(lv_event_t * e)
@@ -513,38 +503,6 @@ void ui_MainScreen_screen_init(void)
 
     lv_obj_set_style_text_font(ui_PWMLabel, &lv_font_montserrat_34, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    // ui_SwipeTestButton
-
-    ui_SwipeTestButton = lv_btn_create(ui_MainScreen);
-
-    lv_obj_set_width(ui_SwipeTestButton, 110);
-    lv_obj_set_height(ui_SwipeTestButton, 55);
-
-    lv_obj_set_x(ui_SwipeTestButton, lv_pct(22));
-    lv_obj_set_y(ui_SwipeTestButton, lv_pct(42));
-
-    lv_obj_set_align(ui_SwipeTestButton, LV_ALIGN_CENTER);
-
-    lv_obj_add_flag(ui_SwipeTestButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
-    lv_obj_clear_flag(ui_SwipeTestButton, LV_OBJ_FLAG_SCROLLABLE);
-
-    lv_obj_add_event_cb(ui_SwipeTestButton, ui_event_SwipeTestButton, LV_EVENT_ALL, NULL);
-    lv_obj_set_style_text_font(ui_SwipeTestButton, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    // ui_SwipeTestLabel
-
-    ui_SwipeTestLabel = lv_label_create(ui_SwipeTestButton);
-
-    lv_obj_set_width(ui_SwipeTestLabel, LV_SIZE_CONTENT);
-    lv_obj_set_height(ui_SwipeTestLabel, LV_SIZE_CONTENT);
-
-    lv_obj_set_x(ui_SwipeTestLabel, 0);
-    lv_obj_set_y(ui_SwipeTestLabel, 0);
-
-    lv_obj_set_align(ui_SwipeTestLabel, LV_ALIGN_CENTER);
-
-    lv_label_set_text(ui_SwipeTestLabel, "Swipe");
-
     // ui_Panel1
 
     ui_Panel1 = lv_obj_create(ui_MainScreen);
@@ -601,7 +559,7 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_height(ui_PWMControlButton, 55);
 
     lv_obj_set_x(ui_PWMControlButton, lv_pct(22));
-    lv_obj_set_y(ui_PWMControlButton, lv_pct(32));
+    lv_obj_set_y(ui_PWMControlButton, lv_pct(36));
 
     lv_obj_set_align(ui_PWMControlButton, LV_ALIGN_CENTER);
 
