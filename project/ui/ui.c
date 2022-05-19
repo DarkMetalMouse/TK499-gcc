@@ -26,7 +26,6 @@ lv_obj_t * ui_GetAngleRightButton;
 lv_obj_t * ui_GetAngleRgihtLabel;
 lv_obj_t * ui_ProgramButton;
 lv_obj_t * ui_ProgramButtonLabel;
-lv_obj_t * ui_Keyboard;
 lv_obj_t * ui_PWMArc;
 lv_obj_t * ui_PWMLabel;
 lv_obj_t * ui_SwipeTestButton;
@@ -53,7 +52,7 @@ static void ui_event_MainScreen(lv_event_t * e)
     lv_event_code_t event = lv_event_get_code(e);
     lv_obj_t * ta = lv_event_get_target(e);
     if(event == LV_EVENT_CLICKED) {
-        _ui_flag_modify(ui_Keyboard, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+        _ui_flag_modify(ui_MainScreen, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
     }
 }
 static void ui_event_RightAngleArc(lv_event_t * e)
@@ -64,28 +63,12 @@ static void ui_event_RightAngleArc(lv_event_t * e)
         _ui_arc_set_text_value(ui_RightAngleLabel, ta, "", "");
     }
 }
-static void ui_event_RightAngleLabel(lv_event_t * e)
-{
-    lv_event_code_t event = lv_event_get_code(e);
-    lv_obj_t * ta = lv_event_get_target(e);
-    if(event == LV_EVENT_CLICKED) {
-        _ui_flag_modify(ui_Keyboard, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
-    }
-}
 static void ui_event_LeftAngleArc(lv_event_t * e)
 {
     lv_event_code_t event = lv_event_get_code(e);
     lv_obj_t * ta = lv_event_get_target(e);
     if(event == LV_EVENT_VALUE_CHANGED) {
         _ui_arc_set_text_value(ui_LeftAngleLabel, ta, "", "");
-    }
-}
-static void ui_event_LeftAngleLabel(lv_event_t * e)
-{
-    lv_event_code_t event = lv_event_get_code(e);
-    lv_obj_t * ta = lv_event_get_target(e);
-    if(event == LV_EVENT_PRESSED) {
-        _ui_flag_modify(ui_Keyboard, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
     }
 }
 static void ui_event_GetAngleLeftButton(lv_event_t * e)
@@ -111,23 +94,6 @@ static void ui_event_ProgramButton(lv_event_t * e)
     if(event == LV_EVENT_CLICKED) {
         program_servo(e);
         _ui_state_modify(ui_ProgramButton, LV_STATE_DISABLED, _UI_MODIFY_STATE_ADD);
-    }
-}
-static void ui_event_Keyboard(lv_event_t * e)
-{
-    lv_event_code_t event = lv_event_get_code(e);
-    lv_obj_t * ta = lv_event_get_target(e);
-    if(event == LV_EVENT_DEFOCUSED) {
-        _ui_flag_modify(ui_Keyboard, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
-    }
-    if(event == LV_EVENT_CANCEL) {
-        _ui_flag_modify(ui_Keyboard, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
-    }
-    if(event == LV_EVENT_READY) {
-        _ui_flag_modify(ui_Keyboard, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
-    }
-    if(event == LV_EVENT_VALUE_CHANGED) {
-        keyboard_key_pressed(e);
     }
 }
 static void ui_event_PWMArc(lv_event_t * e)
@@ -250,7 +216,6 @@ void ui_MainScreen_screen_init(void)
 
     lv_obj_add_flag(ui_RightAngleLabel, LV_OBJ_FLAG_CLICKABLE);
 
-    lv_obj_add_event_cb(ui_RightAngleLabel, ui_event_RightAngleLabel, LV_EVENT_ALL, NULL);
     lv_obj_set_style_text_font(ui_RightAngleLabel, &lv_font_montserrat_40, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     // ui_RightAngleTextArea
@@ -319,7 +284,6 @@ void ui_MainScreen_screen_init(void)
 
     lv_obj_add_flag(ui_LeftAngleLabel, LV_OBJ_FLAG_CLICKABLE);
 
-    lv_obj_add_event_cb(ui_LeftAngleLabel, ui_event_LeftAngleLabel, LV_EVENT_ALL, NULL);
     lv_obj_set_style_text_font(ui_LeftAngleLabel, &lv_font_montserrat_40, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     // ui_RightAngleTextArea1
@@ -512,24 +476,6 @@ void ui_MainScreen_screen_init(void)
 
     lv_obj_set_style_text_font(ui_ProgramButtonLabel, &lv_font_montserrat_40, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    // ui_Keyboard
-
-    ui_Keyboard = lv_keyboard_create(ui_MainScreen);
-
-    lv_keyboard_set_mode(ui_Keyboard, LV_KEYBOARD_MODE_NUMBER);
-
-    lv_obj_set_width(ui_Keyboard, lv_pct(100));
-    lv_obj_set_height(ui_Keyboard, lv_pct(40));
-
-    lv_obj_set_x(ui_Keyboard, 0);
-    lv_obj_set_y(ui_Keyboard, 0);
-
-    lv_obj_set_align(ui_Keyboard, LV_ALIGN_BOTTOM_MID);
-
-    lv_obj_add_flag(ui_Keyboard, LV_OBJ_FLAG_HIDDEN);
-
-    lv_obj_add_event_cb(ui_Keyboard, ui_event_Keyboard, LV_EVENT_ALL, NULL);
-
     // ui_PWMArc
 
     ui_PWMArc = lv_arc_create(ui_MainScreen);
@@ -678,9 +624,6 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_align(ui_PWMControlLabel, LV_ALIGN_CENTER);
 
     lv_label_set_text(ui_PWMControlLabel, "Start");
-
-    // POST CALLS
-    lv_keyboard_set_textarea(ui_Keyboard, ui_RightAngleTextArea);
 
 }
 
