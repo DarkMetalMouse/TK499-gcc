@@ -76,37 +76,36 @@ void send_message(u8 *message, u16 len)
     send_byte(checksum);
 }
 
+bool wait_for_bytes(u32 packet_size, u32 response_size)
+{
+    volatile u32 timeout = 2000;
+    while (rx_i < packet_size + 1 && timeout != 0)
+    {
+        timeout--;
+    }
+    if (!timeout)
+        return false;
+    timeout = response_size * 1000;
+    while (rx_i < packet_size + response_size && timeout != 0)
+    {
+        timeout--;
+    }
+    if (!timeout)
+        return false;
+    return true;
+}
+
 int get_angle()
 {
     int angle;
-    volatile u32 timeout;
 
     ENSURE_UART;
 
     rx_i = 0;
     send_raw(get_angle_packet, sizeof(get_angle_packet));
 
-    timeout = 2000;
-    while (rx_i < 9 && timeout != 0)
-    {
-        timeout--;
-    }
-
-    if (timeout == 0 || rx_i == UINT16_MAX)
-    {
+    if (!wait_for_bytes(sizeof(get_angle_packet), 8))
         return INT32_MAX;
-    }
-
-    timeout = 8000;
-    while (rx_i < 16 && timeout != 0)
-    {
-        timeout--;
-    }
-
-    if (timeout == 0 || rx_i == UINT16_MAX)
-    {
-        return INT32_MAX;
-    }
 
     angle = ((u16)(rx_buf[13] << 8)) + ((u16)rx_buf[14]);
 
@@ -115,7 +114,6 @@ int get_angle()
 
 srs_mode_t get_mode()
 {
-    volatile u32 timeout;
     u8 mode;
     rx_i = 0;
 
@@ -123,25 +121,8 @@ srs_mode_t get_mode()
 
     send_raw(get_mode_packet, sizeof(get_mode_packet));
 
-    timeout = 2000;
-    while (rx_i < sizeof(get_mode_packet) + 1 && timeout != 0)
-    {
-        timeout--;
-    }
-    if (timeout == 0)
-    {
+    if (!wait_for_bytes(sizeof(get_mode_packet), 7))
         return UNKNOWN;
-    }
-
-    timeout = 6000;
-    while (timeout != 0)
-    {
-        timeout--;
-    }
-    if (rx_i < sizeof(get_mode_packet) + 7)
-    {
-        return UNKNOWN;
-    }
 
     mode = rx_buf[sizeof(get_mode_packet) + 5];
     if (mode < 3)
@@ -153,43 +134,11 @@ srs_mode_t get_mode()
 
 bool send_write_enable()
 {
-    volatile u32 timeout;
-    rx_i = 0;
-
-    send_raw(program_packet1, sizeof(program_packet1));
-    timeout = 2000;
-    while (rx_i < sizeof(program_packet1) + 1 && timeout != 0)
-    {
-        timeout--;
-    }
-    if (timeout == 0)
-    {
-        return false;
-    }
-    timeout = 6000;
-    while (timeout != 0)
-    {
-        timeout--;
-    }
-    if (rx_i < sizeof(program_packet1) + 6)
-    {
-        return false;
-    }
-
-    get_mode();
-
     rx_i = 0;
     send_raw(write_enable_packet, sizeof(write_enable_packet));
-
-    timeout = 8000;
-    while (timeout != 0)
-    {
-        timeout--;
-    }
-    if (rx_i < sizeof(write_enable_packet) + 6)
-    {
+    if (!wait_for_bytes(sizeof(write_enable_packet), 6))
         return false;
-    }
+
     return true;
 }
 
@@ -199,19 +148,7 @@ srs_programming_state_t get_programming_status()
     {
         if (rx_i == sizeof(program_continuos_packet) + 6)
         {
-            volatile u32 timeout = 1000;
-            while (timeout)
-                timeout--;
-            timeout = 10000;
-
-            rx_i = 0;
-            send_raw(write_disable_packet, sizeof(write_disable_packet));
-            while (rx_i < sizeof(write_disable_packet) + 6 && timeout)
-                timeout--;
-            if (timeout)
-                state = PROGRAMMING_SUCCESS;
-            else
-                state = PROGRAMMING_FAIL;
+            state = PROGRAMMING_SUCCESS;
         }
         else
         {
@@ -284,10 +221,11 @@ void get_config(srs_conf_t *config)
     }
     rx_i = 0;
     send_message(get_angle_conf_packet, sizeof(get_angle_conf_packet));
-    // timeout = 8000;
-    while (rx_i < sizeof(get_angle_conf_packet) + 3 + 6 + 10)
+    if (!wait_for_bytes(sizeof(get_angle_conf_packet) + 3, 16))
     {
-        // timeout--;
+        config->left_angle = 0;
+        config->right_angle = 0;
+        return;
     }
 
     config->left_angle = map(PACK_BIG_ENDIAN_16(rx_buf[13], rx_buf[14]), 1000, -135, 0, 0);
