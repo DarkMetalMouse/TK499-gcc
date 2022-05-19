@@ -55,7 +55,21 @@ void start_swipe_test(lv_event_t *e)
 
 void read_configuration(lv_event_t *e)
 {
-	// Your code here
+	srs_conf_t conf;
+	get_config(&conf);
+	switch (conf.mode)
+	{
+	case CONTINUOS:
+		_ui_state_modify(ui_ModeSwitch, LV_STATE_CHECKED, _UI_MODIFY_STATE_ADD);
+		break;
+	case SERVO:
+		_ui_state_modify(ui_ModeSwitch, LV_STATE_CHECKED, _UI_MODIFY_STATE_REMOVE);
+		break;
+	default:
+		break;
+	}
+	set_arc_and_label(ui_LeftAngleArc, ui_LeftAngleLabel, conf.left_angle);
+	set_arc_and_label(ui_RightAngleArc, ui_RightAngleLabel, conf.right_angle);
 }
 
 void set_pwm(lv_event_t *e)

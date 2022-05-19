@@ -37,15 +37,12 @@ static u8 program_packet1[] = {0xFF, 0xFF, 0xFE, 0x02, 0x01, 0xFE};             
 static u8 get_mode_packet[] = {0xFF, 0xFF, 0x01, 0x04, 0x02, 0x15, 0x01, 0xE2};      // FF FF 01 03 00 00 FB
 static u8 write_disable_packet[] = {0xFF, 0xFF, 0x01, 0x04, 0x03, 0x34, 0x01, 0xC2}; // FF FF 01 02 00 FC
 
+static u8 get_angle_conf_packet[] = {0x01, 0x04, 0x02, 0x27, 0x0A};
+
+#define PACK_BIG_ENDIAN_16(msb, lsb) ((((u16)(msb)) << 8) + (lsb))
+
 static volatile u8 rx_buf[UART4_RX_BUF_SIZE];
 static volatile u16 rx_i = 0;
-
-typedef enum srs_mode
-{
-    SERVO = 0,
-    CONTINUOS = 1,
-    UNKNOWN = 2
-} srs_mode_t;
 
 u8 calc_checksum(u8 *message, u16 len)
 {
@@ -125,7 +122,18 @@ srs_mode_t get_mode()
     ENSURE_UART;
 
     send_raw(get_mode_packet, sizeof(get_mode_packet));
-    timeout = 8000;
+
+    timeout = 2000;
+    while (rx_i < sizeof(get_mode_packet) + 1 && timeout != 0)
+    {
+        timeout--;
+    }
+    if (timeout == 0)
+    {
+        return UNKNOWN;
+    }
+
+    timeout = 6000;
     while (timeout != 0)
     {
         timeout--;
@@ -263,6 +271,27 @@ void program_servo_angles(int left_angle, int right_angle)
     // programming takes too long, better do asynchronously (poll get_programming_status)
     state = PROGRAMMING;
     programming_time = lv_tick_get();
+}
+
+void get_config(srs_conf_t *config)
+{
+    config->mode = get_mode();
+    if (config->mode == UNKNOWN)
+    {
+        config->left_angle = 0;
+        config->right_angle = 0;
+        return;
+    }
+    rx_i = 0;
+    send_message(get_angle_conf_packet, sizeof(get_angle_conf_packet));
+    // timeout = 8000;
+    while (rx_i < sizeof(get_angle_conf_packet) + 3 + 6 + 10)
+    {
+        // timeout--;
+    }
+
+    config->left_angle = map(PACK_BIG_ENDIAN_16(rx_buf[13], rx_buf[14]), 1000, -135, 0, 0);
+    config->right_angle = map(PACK_BIG_ENDIAN_16(rx_buf[21], rx_buf[22]), 1000, 135, 0, 0);
 }
 
 bool is_pwm_mode()
