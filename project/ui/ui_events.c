@@ -47,3 +47,18 @@ void keyboard_key_pressed(lv_event_t *e)
 {
 	// Your code here
 }
+
+void start_swipe_test(lv_event_t *e)
+{
+	// Your code here
+}
+
+void read_configuration(lv_event_t *e)
+{
+	// Your code here
+}
+
+void set_pwm(lv_event_t *e)
+{
+	set_pwm_output(map(lv_arc_get_value(ui_PWMArc), -100, 500, 100, 2500));
+}

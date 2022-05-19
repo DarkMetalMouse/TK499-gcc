@@ -27,6 +27,13 @@ lv_obj_t * ui_GetAngleRgihtLabel;
 lv_obj_t * ui_ProgramButton;
 lv_obj_t * ui_ProgramButtonLabel;
 lv_obj_t * ui_Keyboard;
+lv_obj_t * ui_PWMArc;
+lv_obj_t * ui_PWMLabel;
+lv_obj_t * ui_SwipeTestButton;
+lv_obj_t * ui_SwipeTestLabel;
+lv_obj_t * ui_Panel1;
+lv_obj_t * ui_ReadConfigurationLabel;
+lv_obj_t * ui_SwipeTestLabel1;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 32
@@ -121,6 +128,31 @@ static void ui_event_Keyboard(lv_event_t * e)
         keyboard_key_pressed(e);
     }
 }
+static void ui_event_PWMArc(lv_event_t * e)
+{
+    lv_event_code_t event = lv_event_get_code(e);
+    lv_obj_t * ta = lv_event_get_target(e);
+    if(event == LV_EVENT_VALUE_CHANGED) {
+        _ui_arc_set_text_value(ui_PWMLabel, ta, "", "%");
+        set_pwm(e);
+    }
+}
+static void ui_event_SwipeTestButton(lv_event_t * e)
+{
+    lv_event_code_t event = lv_event_get_code(e);
+    lv_obj_t * ta = lv_event_get_target(e);
+    if(event == LV_EVENT_CLICKED) {
+        start_swipe_test(e);
+    }
+}
+static void ui_event_ReadConfigurationLabel(lv_event_t * e)
+{
+    lv_event_code_t event = lv_event_get_code(e);
+    lv_obj_t * ta = lv_event_get_target(e);
+    if(event == LV_EVENT_CLICKED) {
+        read_configuration(e);
+    }
+}
 
 ///////////////////// SCREENS ////////////////////
 void ui_MainScreen_screen_init(void)
@@ -179,7 +211,7 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_height(ui_RightAngleArc, 240);
 
     lv_obj_set_x(ui_RightAngleArc, lv_pct(20));
-    lv_obj_set_y(ui_RightAngleArc, lv_pct(-6));
+    lv_obj_set_y(ui_RightAngleArc, lv_pct(-15));
 
     lv_obj_set_align(ui_RightAngleArc, LV_ALIGN_CENTER);
 
@@ -247,7 +279,7 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_height(ui_LeftAngleArc, 240);
 
     lv_obj_set_x(ui_LeftAngleArc, lv_pct(-20));
-    lv_obj_set_y(ui_LeftAngleArc, lv_pct(-6));
+    lv_obj_set_y(ui_LeftAngleArc, lv_pct(-15));
 
     lv_obj_set_align(ui_LeftAngleArc, LV_ALIGN_CENTER);
 
@@ -316,7 +348,7 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_height(ui_ModePanel, 50);
 
     lv_obj_set_x(ui_ModePanel, -22);
-    lv_obj_set_y(ui_ModePanel, lv_pct(13));
+    lv_obj_set_y(ui_ModePanel, lv_pct(3));
 
     lv_obj_set_align(ui_ModePanel, LV_ALIGN_CENTER);
 
@@ -379,7 +411,7 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_height(ui_GetAngleLeftButton, 60);
 
     lv_obj_set_x(ui_GetAngleLeftButton, lv_pct(-24));
-    lv_obj_set_y(ui_GetAngleLeftButton, lv_pct(-29));
+    lv_obj_set_y(ui_GetAngleLeftButton, lv_pct(-36));
 
     lv_obj_set_align(ui_GetAngleLeftButton, LV_ALIGN_CENTER);
 
@@ -412,7 +444,7 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_height(ui_GetAngleRightButton, 60);
 
     lv_obj_set_x(ui_GetAngleRightButton, lv_pct(24));
-    lv_obj_set_y(ui_GetAngleRightButton, lv_pct(-29));
+    lv_obj_set_y(ui_GetAngleRightButton, lv_pct(-36));
 
     lv_obj_set_align(ui_GetAngleRightButton, LV_ALIGN_CENTER);
 
@@ -441,11 +473,11 @@ void ui_MainScreen_screen_init(void)
 
     ui_ProgramButton = lv_btn_create(ui_MainScreen);
 
-    lv_obj_set_width(ui_ProgramButton, 209);
-    lv_obj_set_height(ui_ProgramButton, 86);
+    lv_obj_set_width(ui_ProgramButton, 210);
+    lv_obj_set_height(ui_ProgramButton, 90);
 
-    lv_obj_set_x(ui_ProgramButton, 0);
-    lv_obj_set_y(ui_ProgramButton, lv_pct(25));
+    lv_obj_set_x(ui_ProgramButton, lv_pct(-13));
+    lv_obj_set_y(ui_ProgramButton, lv_pct(14));
 
     lv_obj_set_align(ui_ProgramButton, LV_ALIGN_CENTER);
 
@@ -462,7 +494,7 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_height(ui_ProgramButtonLabel, LV_SIZE_CONTENT);
 
     lv_obj_set_x(ui_ProgramButtonLabel, 0);
-    lv_obj_set_y(ui_ProgramButtonLabel, 0);
+    lv_obj_set_y(ui_ProgramButtonLabel, -1);
 
     lv_obj_set_align(ui_ProgramButtonLabel, LV_ALIGN_CENTER);
 
@@ -487,6 +519,123 @@ void ui_MainScreen_screen_init(void)
     lv_obj_add_flag(ui_Keyboard, LV_OBJ_FLAG_HIDDEN);
 
     lv_obj_add_event_cb(ui_Keyboard, ui_event_Keyboard, LV_EVENT_ALL, NULL);
+
+    // ui_PWMArc
+
+    ui_PWMArc = lv_arc_create(ui_MainScreen);
+
+    lv_obj_set_width(ui_PWMArc, 175);
+    lv_obj_set_height(ui_PWMArc, 175);
+
+    lv_obj_set_x(ui_PWMArc, lv_pct(-21));
+    lv_obj_set_y(ui_PWMArc, lv_pct(37));
+
+    lv_obj_set_align(ui_PWMArc, LV_ALIGN_CENTER);
+
+    lv_arc_set_range(ui_PWMArc, -100, 100);
+    lv_arc_set_bg_angles(ui_PWMArc, 120, 60);
+
+    lv_obj_add_event_cb(ui_PWMArc, ui_event_PWMArc, LV_EVENT_ALL, NULL);
+
+    lv_obj_set_style_arc_width(ui_PWMArc, 18, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_arc_width(ui_PWMArc, 18, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+
+    // ui_PWMLabel
+
+    ui_PWMLabel = lv_label_create(ui_PWMArc);
+
+    lv_obj_set_width(ui_PWMLabel, LV_SIZE_CONTENT);
+    lv_obj_set_height(ui_PWMLabel, LV_SIZE_CONTENT);
+
+    lv_obj_set_x(ui_PWMLabel, 0);
+    lv_obj_set_y(ui_PWMLabel, 0);
+
+    lv_obj_set_align(ui_PWMLabel, LV_ALIGN_CENTER);
+
+    lv_label_set_text(ui_PWMLabel, "-100%");
+
+    lv_obj_set_style_text_font(ui_PWMLabel, &lv_font_montserrat_34, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // ui_SwipeTestButton
+
+    ui_SwipeTestButton = lv_btn_create(ui_MainScreen);
+
+    lv_obj_set_width(ui_SwipeTestButton, 110);
+    lv_obj_set_height(ui_SwipeTestButton, 55);
+
+    lv_obj_set_x(ui_SwipeTestButton, lv_pct(22));
+    lv_obj_set_y(ui_SwipeTestButton, lv_pct(37));
+
+    lv_obj_set_align(ui_SwipeTestButton, LV_ALIGN_CENTER);
+
+    lv_obj_add_flag(ui_SwipeTestButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+    lv_obj_clear_flag(ui_SwipeTestButton, LV_OBJ_FLAG_SCROLLABLE);
+
+    lv_obj_add_event_cb(ui_SwipeTestButton, ui_event_SwipeTestButton, LV_EVENT_ALL, NULL);
+    lv_obj_set_style_text_font(ui_SwipeTestButton, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // ui_SwipeTestLabel
+
+    ui_SwipeTestLabel = lv_label_create(ui_SwipeTestButton);
+
+    lv_obj_set_width(ui_SwipeTestLabel, LV_SIZE_CONTENT);
+    lv_obj_set_height(ui_SwipeTestLabel, LV_SIZE_CONTENT);
+
+    lv_obj_set_x(ui_SwipeTestLabel, 0);
+    lv_obj_set_y(ui_SwipeTestLabel, 0);
+
+    lv_obj_set_align(ui_SwipeTestLabel, LV_ALIGN_CENTER);
+
+    lv_label_set_text(ui_SwipeTestLabel, "Swipe");
+
+    // ui_Panel1
+
+    ui_Panel1 = lv_obj_create(ui_MainScreen);
+
+    lv_obj_set_height(ui_Panel1, 10);
+    lv_obj_set_width(ui_Panel1, lv_pct(100));
+
+    lv_obj_set_x(ui_Panel1, 0);
+    lv_obj_set_y(ui_Panel1, lv_pct(22));
+
+    lv_obj_set_align(ui_Panel1, LV_ALIGN_CENTER);
+
+    lv_obj_clear_flag(ui_Panel1, LV_OBJ_FLAG_SCROLLABLE);
+
+    lv_obj_set_style_radius(ui_Panel1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // ui_ReadConfigurationLabel
+
+    ui_ReadConfigurationLabel = lv_btn_create(ui_MainScreen);
+
+    lv_obj_set_width(ui_ReadConfigurationLabel, 110);
+    lv_obj_set_height(ui_ReadConfigurationLabel, 55);
+
+    lv_obj_set_x(ui_ReadConfigurationLabel, lv_pct(28));
+    lv_obj_set_y(ui_ReadConfigurationLabel, lv_pct(14));
+
+    lv_obj_set_align(ui_ReadConfigurationLabel, LV_ALIGN_CENTER);
+
+    lv_obj_add_flag(ui_ReadConfigurationLabel, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+    lv_obj_clear_flag(ui_ReadConfigurationLabel, LV_OBJ_FLAG_SCROLLABLE);
+
+    lv_obj_add_event_cb(ui_ReadConfigurationLabel, ui_event_ReadConfigurationLabel, LV_EVENT_ALL, NULL);
+    lv_obj_set_style_text_font(ui_ReadConfigurationLabel, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // ui_SwipeTestLabel1
+
+    ui_SwipeTestLabel1 = lv_label_create(ui_ReadConfigurationLabel);
+
+    lv_obj_set_width(ui_SwipeTestLabel1, LV_SIZE_CONTENT);
+    lv_obj_set_height(ui_SwipeTestLabel1, LV_SIZE_CONTENT);
+
+    lv_obj_set_x(ui_SwipeTestLabel1, 0);
+    lv_obj_set_y(ui_SwipeTestLabel1, 0);
+
+    lv_obj_set_align(ui_SwipeTestLabel1, LV_ALIGN_CENTER);
+
+    lv_label_set_text(ui_SwipeTestLabel1, "Read");
 
     // POST CALLS
     lv_keyboard_set_textarea(ui_Keyboard, ui_RightAngleTextArea);

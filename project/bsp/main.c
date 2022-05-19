@@ -60,6 +60,7 @@ int main(void)
     ui_init();
     ui_set_connection(false);
     lv_arc_set_value(ui_LeftAngleArc, 0);
+    lv_arc_set_value(ui_PWMArc, 0);
     while (1)
     {
         switch (get_programming_status())

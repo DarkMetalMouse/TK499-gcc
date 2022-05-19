@@ -5,7 +5,23 @@
 #include "srs_programmer.h"
 #include "lvgl.h"
 
-#define map(x, x1, y1, x2, y2) ((x) - (x2)) * ((y2) - (y1)) / ((x2) - (x1)) + (y2)
+bool is_pwm_mode();
+void PD6_UART_conf();
+void PD6_PWM_conf();
+
+#define ENSURE_UART                 \
+    if (is_pwm_mode())              \
+    {                               \
+        PD6_UART_conf();            \
+        volatile u32 sleep = 10000; \
+        while (sleep--)             \
+            ;                       \
+    }
+#define ENSURE_PWM      \
+    if (!is_pwm_mode()) \
+    {                   \
+        PD6_PWM_conf(); \
+    }
 
 #define UART4_RX_BUF_SIZE 256
 #define PROGRAMMING_TIMEOUT 1000
@@ -17,8 +33,19 @@ static u8 program_angle_packet[] = {0x01, 0x2F, 0x03, 0x06, 0x02, 0x1E, 0x00, 0x
 srs_programming_state_t state = NOT_PROGRAMMING;
 static u32 programming_time = 0;
 
+static u8 program_packet1[] = {0xFF, 0xFF, 0xFE, 0x02, 0x01, 0xFE};                  // FF FF 01 02 00 FC
+static u8 get_mode_packet[] = {0xFF, 0xFF, 0x01, 0x04, 0x02, 0x15, 0x01, 0xE2};      // FF FF 01 03 00 00 FB
+static u8 write_disable_packet[] = {0xFF, 0xFF, 0x01, 0x04, 0x03, 0x34, 0x01, 0xC2}; // FF FF 01 02 00 FC
+
 static volatile u8 rx_buf[UART4_RX_BUF_SIZE];
 static volatile u16 rx_i = 0;
+
+typedef enum srs_mode
+{
+    SERVO = 0,
+    CONTINUOS = 1,
+    UNKNOWN = 2
+} srs_mode_t;
 
 u8 calc_checksum(u8 *message, u16 len)
 {
@@ -56,6 +83,9 @@ int get_angle()
 {
     int angle;
     volatile u32 timeout;
+
+    ENSURE_UART;
+
     rx_i = 0;
     send_raw(get_angle_packet, sizeof(get_angle_packet));
 
@@ -86,15 +116,41 @@ int get_angle()
     return map(angle, 0, -180 + 20, 1023, 179 - 20); // the range of the potentiometer is 320 degrees
 }
 
+srs_mode_t get_mode()
+{
+    volatile u32 timeout;
+    u8 mode;
+    rx_i = 0;
+
+    ENSURE_UART;
+
+    send_raw(get_mode_packet, sizeof(get_mode_packet));
+    timeout = 8000;
+    while (timeout != 0)
+    {
+        timeout--;
+    }
+    if (rx_i < sizeof(get_mode_packet) + 7)
+    {
+        return UNKNOWN;
+    }
+
+    mode = rx_buf[sizeof(get_mode_packet) + 5];
+    if (mode < 3)
+    {
+        return (srs_mode_t)mode; // 0 == servo, 1 == cont
+    }
+    return UNKNOWN;
+}
+
 bool send_write_enable()
 {
-    rx_i = 0;
     volatile u32 timeout;
+    rx_i = 0;
 
-    send_raw(write_enable_packet, sizeof(write_enable_packet));
-
+    send_raw(program_packet1, sizeof(program_packet1));
     timeout = 2000;
-    while (rx_i < sizeof(write_enable_packet) + 1 && timeout != 0)
+    while (rx_i < sizeof(program_packet1) + 1 && timeout != 0)
     {
         timeout--;
     }
@@ -102,8 +158,22 @@ bool send_write_enable()
     {
         return false;
     }
-
     timeout = 6000;
+    while (timeout != 0)
+    {
+        timeout--;
+    }
+    if (rx_i < sizeof(program_packet1) + 6)
+    {
+        return false;
+    }
+
+    get_mode();
+
+    rx_i = 0;
+    send_raw(write_enable_packet, sizeof(write_enable_packet));
+
+    timeout = 8000;
     while (timeout != 0)
     {
         timeout--;
@@ -121,7 +191,19 @@ srs_programming_state_t get_programming_status()
     {
         if (rx_i == sizeof(program_continuos_packet) + 6)
         {
-            state = PROGRAMMING_SUCCESS;
+            volatile u32 timeout = 1000;
+            while (timeout)
+                timeout--;
+            timeout = 10000;
+
+            rx_i = 0;
+            send_raw(write_disable_packet, sizeof(write_disable_packet));
+            while (rx_i < sizeof(write_disable_packet) + 6 && timeout)
+                timeout--;
+            if (timeout)
+                state = PROGRAMMING_SUCCESS;
+            else
+                state = PROGRAMMING_FAIL;
         }
         else
         {
@@ -143,6 +225,8 @@ srs_programming_state_t get_programming_status()
 
 void program_continuos()
 {
+    ENSURE_UART;
+
     if (!send_write_enable())
     {
         state = PROGRAMMING_FAIL;
@@ -158,6 +242,8 @@ void program_continuos()
 
 void program_servo_angles(int left_angle, int right_angle)
 {
+    ENSURE_UART;
+
     right_angle = map(right_angle, 135, 1000, 0, 0);
     left_angle = map(left_angle, -135, 1000, 0, 0);
 
@@ -179,7 +265,49 @@ void program_servo_angles(int left_angle, int right_angle)
     programming_time = lv_tick_get();
 }
 
-void srs_programmer_init()
+bool is_pwm_mode()
+{
+    return (bool)TIM2->CR1 & TIM_CR1_CEN;
+}
+
+void set_pwm_output(int duty_us)
+{
+    ENSURE_PWM;
+    //           ARR   - ARR   * (duty_us) / (1/Frequency (50Hz))
+    TIM2->CCR2 = 10000 - 10000 * (duty_us) / 20000;
+    TIM_Cmd(TIM2, ENABLE);
+}
+
+void PD6_UART_conf()
+{
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    TIM_Cmd(TIM2, DISABLE);
+
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+
+    GPIO_Init(GPIOD, &GPIO_InitStructure);
+    GPIO_PinAFConfig(GPIOD, GPIO_Pin_6, GPIO_AF_UART_2345);
+
+    UART_Cmd(UART4, ENABLE);
+}
+
+void PD6_PWM_conf()
+{
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    UART_Cmd(UART4, DISABLE);
+
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOD, &GPIO_InitStructure);
+    GPIO_PinAFConfig(GPIOD, GPIO_Pin_6, GPIO_AF_TIM_1_2);
+}
+
+void UART_init()
 {
     UART_InitTypeDef UART_InitStructure;
     GPIO_InitTypeDef GPIO_InitStructure;
@@ -189,14 +317,7 @@ void srs_programmer_init()
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
     GPIO_Init(GPIOD, &GPIO_InitStructure);
-
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-
-    GPIO_Init(GPIOD, &GPIO_InitStructure);
-
-    GPIO_PinAFConfig(GPIOD, GPIO_Pin_6 | GPIO_Pin_7, GPIO_AF_UART_2345);
+    GPIO_PinAFConfig(GPIOD, GPIO_Pin_7, GPIO_AF_UART_2345);
 
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_UART4, ENABLE);
     UART_InitStructure.UART_BaudRate = 77170;
@@ -206,13 +327,47 @@ void srs_programmer_init()
     UART_InitStructure.UART_Mode = UART_Mode_Rx | UART_Mode_Tx;
     UART_InitStructure.UART_HardwareFlowControl = UART_HardwareFlowControl_None;
     UART_Init(UART4, &UART_InitStructure);
-    UART_Cmd(UART4, ENABLE);
 
     UART_ClearITPendingBit(UART4, 0xff);
 
     UART_ITConfig(UART4, UART_IT_RXIEN, ENABLE);
     NVIC_SetPriority(UART4_IRQn, 3);
     NVIC_EnableIRQ(UART4_IRQn);
+}
+
+void PWM_init()
+{
+    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM2, ENABLE);
+
+    // 50Hz
+    TIM_TimeBaseStructure.TIM_Period = 10000;
+    TIM_TimeBaseStructure.TIM_Prescaler = 480;
+    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+    TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+    TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+
+    // Hal is convoluted, simpler to do direct register operations
+    TIM2->CCR2 = 0; // compare value (1 - crr/arr == duty cycle % -> 100%)
+
+    TIM2->CCMR1 = 0;
+    TIM2->CCMR1 |= (TIM_CCMR1_OC2M);  // Enable output compare for channel 2
+    TIM2->CCMR1 |= (TIM_CCMR1_OC2PE); // Enable preload for channel 2
+
+    TIM2->CCER = 0;
+    TIM2->CCER |= TIM_CCER_CC2E; // Enable output compare for channel 2
+
+    TIM2->BDTR |= TIM_BDTR_MOE; // main output enable
+}
+void srs_programmer_init()
+{
+
+    UART_init();
+
+    PD6_UART_conf();
+
+    PWM_init();
 }
 u8 Uart4_Receive(void)
 {
