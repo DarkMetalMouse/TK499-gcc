@@ -489,7 +489,7 @@ void ui_MainScreen_screen_init(void)
 
     lv_obj_set_align(ui_PWMLabel, LV_ALIGN_CENTER);
 
-    lv_label_set_text(ui_PWMLabel, "-100%");
+    lv_label_set_text(ui_PWMLabel, "0%");
 
     lv_obj_set_style_text_font(ui_PWMLabel, &lv_font_montserrat_34, LV_PART_MAIN | LV_STATE_DEFAULT);
 
