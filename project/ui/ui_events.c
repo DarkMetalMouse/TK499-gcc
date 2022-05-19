@@ -8,6 +8,20 @@
 #include "ui_helpers.h"
 #include "HAL_conf.h"
 
+void set_pwm_button_label(bool text_start)
+{
+	if (text_start)
+	{
+		if (lv_label_get_text(ui_PWMControlLabel)[2] != 'a')
+			lv_label_set_text(ui_PWMControlLabel, "Start");
+	}
+	else
+	{
+		if (lv_label_get_text(ui_PWMControlLabel)[2] != 'o')
+			lv_label_set_text(ui_PWMControlLabel, "Stop");
+	}
+}
+
 void set_arc_and_label(lv_obj_t *arc, lv_obj_t *label, int angle)
 {
 	if (angle > lv_arc_get_max_value(arc) || angle < lv_arc_get_min_value(arc))
@@ -22,12 +36,14 @@ void set_arc_and_label(lv_obj_t *arc, lv_obj_t *label, int angle)
 
 void set_right_angle_from_servo(lv_event_t *e)
 {
+	set_pwm_button_label(true);
 	set_arc_and_label(ui_RightAngleArc, ui_RightAngleLabel, get_angle());
 }
 
 void program_servo(lv_event_t *e)
 
 {
+	set_pwm_button_label(true);
 	if (lv_obj_has_state(ui_ModeSwitch, LV_STATE_CHECKED))
 	{
 		program_continuos();
@@ -40,6 +56,7 @@ void program_servo(lv_event_t *e)
 
 void set_left_angle_from_servo(lv_event_t *e)
 {
+	set_pwm_button_label(true);
 	set_arc_and_label(ui_LeftAngleArc, ui_LeftAngleLabel, get_angle());
 }
 
@@ -56,6 +73,8 @@ void start_swipe_test(lv_event_t *e)
 void read_configuration(lv_event_t *e)
 {
 	srs_conf_t conf;
+	set_pwm_button_label(true);
+
 	get_config(&conf);
 	switch (conf.mode)
 	{
@@ -74,5 +93,19 @@ void read_configuration(lv_event_t *e)
 
 void set_pwm(lv_event_t *e)
 {
+	set_pwm_button_label(false);
 	set_pwm_output(map(lv_arc_get_value(ui_PWMArc), -100, 500, 100, 2500));
+}
+
+void pwm_clicked(lv_event_t *e)
+{
+	if (lv_label_get_text(ui_PWMControlLabel)[2] == 'a') // Start
+	{
+		set_pwm(NULL);
+	}
+	else
+	{
+		config_uart_mode();
+		lv_label_set_text(ui_PWMControlLabel, "Start");
+	}
 }

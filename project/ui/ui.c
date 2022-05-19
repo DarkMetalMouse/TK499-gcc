@@ -32,8 +32,10 @@ lv_obj_t * ui_PWMLabel;
 lv_obj_t * ui_SwipeTestButton;
 lv_obj_t * ui_SwipeTestLabel;
 lv_obj_t * ui_Panel1;
+lv_obj_t * ui_ReadConfigurationButton;
 lv_obj_t * ui_ReadConfigurationLabel;
-lv_obj_t * ui_SwipeTestLabel1;
+lv_obj_t * ui_PWMControlButton;
+lv_obj_t * ui_PWMControlLabel;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 32
@@ -145,12 +147,20 @@ static void ui_event_SwipeTestButton(lv_event_t * e)
         start_swipe_test(e);
     }
 }
-static void ui_event_ReadConfigurationLabel(lv_event_t * e)
+static void ui_event_ReadConfigurationButton(lv_event_t * e)
 {
     lv_event_code_t event = lv_event_get_code(e);
     lv_obj_t * ta = lv_event_get_target(e);
     if(event == LV_EVENT_CLICKED) {
         read_configuration(e);
+    }
+}
+static void ui_event_PWMControlButton(lv_event_t * e)
+{
+    lv_event_code_t event = lv_event_get_code(e);
+    lv_obj_t * ta = lv_event_get_target(e);
+    if(event == LV_EVENT_CLICKED) {
+        pwm_clicked(e);
     }
 }
 
@@ -565,7 +575,7 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_height(ui_SwipeTestButton, 55);
 
     lv_obj_set_x(ui_SwipeTestButton, lv_pct(22));
-    lv_obj_set_y(ui_SwipeTestButton, lv_pct(37));
+    lv_obj_set_y(ui_SwipeTestButton, lv_pct(42));
 
     lv_obj_set_align(ui_SwipeTestButton, LV_ALIGN_CENTER);
 
@@ -605,37 +615,69 @@ void ui_MainScreen_screen_init(void)
 
     lv_obj_set_style_radius(ui_Panel1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    // ui_ReadConfigurationButton
+
+    ui_ReadConfigurationButton = lv_btn_create(ui_MainScreen);
+
+    lv_obj_set_width(ui_ReadConfigurationButton, 110);
+    lv_obj_set_height(ui_ReadConfigurationButton, 55);
+
+    lv_obj_set_x(ui_ReadConfigurationButton, lv_pct(28));
+    lv_obj_set_y(ui_ReadConfigurationButton, lv_pct(14));
+
+    lv_obj_set_align(ui_ReadConfigurationButton, LV_ALIGN_CENTER);
+
+    lv_obj_add_flag(ui_ReadConfigurationButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+    lv_obj_clear_flag(ui_ReadConfigurationButton, LV_OBJ_FLAG_SCROLLABLE);
+
+    lv_obj_add_event_cb(ui_ReadConfigurationButton, ui_event_ReadConfigurationButton, LV_EVENT_ALL, NULL);
+    lv_obj_set_style_text_font(ui_ReadConfigurationButton, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
     // ui_ReadConfigurationLabel
 
-    ui_ReadConfigurationLabel = lv_btn_create(ui_MainScreen);
+    ui_ReadConfigurationLabel = lv_label_create(ui_ReadConfigurationButton);
 
-    lv_obj_set_width(ui_ReadConfigurationLabel, 110);
-    lv_obj_set_height(ui_ReadConfigurationLabel, 55);
+    lv_obj_set_width(ui_ReadConfigurationLabel, LV_SIZE_CONTENT);
+    lv_obj_set_height(ui_ReadConfigurationLabel, LV_SIZE_CONTENT);
 
-    lv_obj_set_x(ui_ReadConfigurationLabel, lv_pct(28));
-    lv_obj_set_y(ui_ReadConfigurationLabel, lv_pct(14));
+    lv_obj_set_x(ui_ReadConfigurationLabel, 0);
+    lv_obj_set_y(ui_ReadConfigurationLabel, 0);
 
     lv_obj_set_align(ui_ReadConfigurationLabel, LV_ALIGN_CENTER);
 
-    lv_obj_add_flag(ui_ReadConfigurationLabel, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
-    lv_obj_clear_flag(ui_ReadConfigurationLabel, LV_OBJ_FLAG_SCROLLABLE);
+    lv_label_set_text(ui_ReadConfigurationLabel, "Read");
 
-    lv_obj_add_event_cb(ui_ReadConfigurationLabel, ui_event_ReadConfigurationLabel, LV_EVENT_ALL, NULL);
-    lv_obj_set_style_text_font(ui_ReadConfigurationLabel, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    // ui_PWMControlButton
 
-    // ui_SwipeTestLabel1
+    ui_PWMControlButton = lv_btn_create(ui_MainScreen);
 
-    ui_SwipeTestLabel1 = lv_label_create(ui_ReadConfigurationLabel);
+    lv_obj_set_width(ui_PWMControlButton, 110);
+    lv_obj_set_height(ui_PWMControlButton, 55);
 
-    lv_obj_set_width(ui_SwipeTestLabel1, LV_SIZE_CONTENT);
-    lv_obj_set_height(ui_SwipeTestLabel1, LV_SIZE_CONTENT);
+    lv_obj_set_x(ui_PWMControlButton, lv_pct(22));
+    lv_obj_set_y(ui_PWMControlButton, lv_pct(32));
 
-    lv_obj_set_x(ui_SwipeTestLabel1, 0);
-    lv_obj_set_y(ui_SwipeTestLabel1, 0);
+    lv_obj_set_align(ui_PWMControlButton, LV_ALIGN_CENTER);
 
-    lv_obj_set_align(ui_SwipeTestLabel1, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_PWMControlButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+    lv_obj_clear_flag(ui_PWMControlButton, LV_OBJ_FLAG_SCROLLABLE);
 
-    lv_label_set_text(ui_SwipeTestLabel1, "Read");
+    lv_obj_add_event_cb(ui_PWMControlButton, ui_event_PWMControlButton, LV_EVENT_ALL, NULL);
+    lv_obj_set_style_text_font(ui_PWMControlButton, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    // ui_PWMControlLabel
+
+    ui_PWMControlLabel = lv_label_create(ui_PWMControlButton);
+
+    lv_obj_set_width(ui_PWMControlLabel, LV_SIZE_CONTENT);
+    lv_obj_set_height(ui_PWMControlLabel, LV_SIZE_CONTENT);
+
+    lv_obj_set_x(ui_PWMControlLabel, 0);
+    lv_obj_set_y(ui_PWMControlLabel, 0);
+
+    lv_obj_set_align(ui_PWMControlLabel, LV_ALIGN_CENTER);
+
+    lv_label_set_text(ui_PWMControlLabel, "Start");
 
     // POST CALLS
     lv_keyboard_set_textarea(ui_Keyboard, ui_RightAngleTextArea);

@@ -31,5 +31,6 @@ void program_servo_angles(int left_angle, int right_angle);
 void set_pwm_output(int duty_us);
 srs_programming_state_t get_programming_status();
 void get_config(srs_conf_t *config);
+void config_uart_mode();
 
 #endif

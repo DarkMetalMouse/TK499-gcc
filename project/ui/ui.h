@@ -41,8 +41,10 @@ extern lv_obj_t * ui_PWMLabel;
 extern lv_obj_t * ui_SwipeTestButton;
 extern lv_obj_t * ui_SwipeTestLabel;
 extern lv_obj_t * ui_Panel1;
+extern lv_obj_t * ui_ReadConfigurationButton;
 extern lv_obj_t * ui_ReadConfigurationLabel;
-extern lv_obj_t * ui_SwipeTestLabel1;
+extern lv_obj_t * ui_PWMControlButton;
+extern lv_obj_t * ui_PWMControlLabel;
 
 void set_left_angle_from_servo(lv_event_t * e);
 void set_right_angle_from_servo(lv_event_t * e);
@@ -51,6 +53,7 @@ void keyboard_key_pressed(lv_event_t * e);
 void set_pwm(lv_event_t * e);
 void start_swipe_test(lv_event_t * e);
 void read_configuration(lv_event_t * e);
+void pwm_clicked(lv_event_t * e);
 
 
 

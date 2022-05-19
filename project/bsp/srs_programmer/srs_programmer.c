@@ -294,6 +294,11 @@ void get_config(srs_conf_t *config)
     config->right_angle = map(PACK_BIG_ENDIAN_16(rx_buf[21], rx_buf[22]), 1000, 135, 0, 0);
 }
 
+void config_uart_mode()
+{
+    PD6_UART_conf();
+}
+
 bool is_pwm_mode()
 {
     return (bool)TIM2->CR1 & TIM_CR1_CEN;
