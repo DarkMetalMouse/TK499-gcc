@@ -68,7 +68,7 @@
 #define IC_TAR_ENDUAL_Set         ((uint16_t)0x1000)
 #define IC_TAR_ENDUAL_Reset       ((uint16_t)0xEFFF)
 
-/* I2C SPECIAL¡¢GC_OR_START bits mask */
+/* I2C SPECIALã€GC_OR_START bits mask */
 #define IC_TAR_GC_Set            ((uint16_t)0x0800)
 #define IC_TAR_GC_Reset          ((uint16_t)0xF7FF)
 
@@ -78,64 +78,64 @@
 //static
  uint8_t I2C_CMD_DIR = 0;
 
-/*ĞÂÔö¼ÓµÄÓÃ»§±äÁ¿£¬Íâ²¿µ÷ÓÃÊ±ĞèÒª¸üĞÂ¸Ã±äÁ¿Öµ*/
-uint16_t I2C_DMA_DIR = 0;  
+ /*æ–°å¢åŠ çš„ç”¨æˆ·å˜é‡ï¼Œå¤–éƒ¨è°ƒç”¨æ—¶éœ€è¦æ›´æ–°è¯¥å˜é‡å€¼*/
+ uint16_t I2C_DMA_DIR = 0;
 
-/** 
-* @}
-*/
+ /**
+  * @}
+  */
 
-/** @defgroup I2C_Private_Macros
-* @{
-*/
+ /** @defgroup I2C_Private_Macros
+  * @{
+  */
 
-/**
-* @}
-*/
+ /**
+  * @}
+  */
 
-/** @defgroup I2C_Private_Variables
-* @{
-*/
+ /** @defgroup I2C_Private_Variables
+  * @{
+  */
 
-/**
-* @}
-*/
+ /**
+  * @}
+  */
 
-/** @defgroup I2C_Private_FunctionPrototypes
-* @{
-*/
+ /** @defgroup I2C_Private_FunctionPrototypes
+  * @{
+  */
 
-/**
-* @}
-*/
+ /**
+  * @}
+  */
 
-/** @defgroup I2C_Private_Functions
-* @{
-*/
+ /** @defgroup I2C_Private_Functions
+  * @{
+  */
 
-/**
-* @brief  Deinitializes the I2Cx peripheral registers to their default
-*   reset values.
-* @param I2Cx: where x can be 1 or 2 to select the I2C peripheral.
-* @retval : None
-*/
-void I2C_DeInit(I2C_TypeDef* I2Cx)
-{
-  /* Check the parameters */
-  assert_param(IS_I2C_ALL_PERIPH(I2Cx));
-  switch (*(uint32_t*)&I2Cx)
-  {
-  case I2C1_BASE:
-    /* Enable I2C1 reset state */
-    RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, ENABLE);
-    /* Release I2C1 from reset state */
-    RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, DISABLE);
-    break;
-    
-  default:
-    break;
-  }
-}
+ /**
+  * @brief  Deinitializes the I2Cx peripheral registers to their default
+  *   reset values.
+  * @param I2Cx: where x can be 1 or 2 to select the I2C peripheral.
+  * @retval : None
+  */
+ void I2C_DeInit(I2C_TypeDef *I2Cx)
+ {
+   /* Check the parameters */
+   assert_param(IS_I2C_ALL_PERIPH(I2Cx));
+   switch (*(uint32_t *)&I2Cx)
+   {
+   case I2C1_BASE:
+     /* Enable I2C1 reset state */
+     RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, ENABLE);
+     /* Release I2C1 from reset state */
+     RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, DISABLE);
+     break;
+
+   default:
+     break;
+   }
+ }
 
 /**
 * @brief  Initializes the I2Cx peripheral according to the specified 
@@ -636,7 +636,6 @@ ErrorStatus I2C_CheckEvent(I2C_TypeDef* I2Cx, uint32_t I2C_EVENT)
 FlagStatus I2C_GetFlagStatus(I2C_TypeDef* I2Cx, uint32_t I2C_FLAG)
 {
   FlagStatus bitstatus = RESET;
-  __IO uint32_t i2creg = 0, i2cxbase = 0;
   /* Check the parameters */
   assert_param(IS_I2C_ALL_PERIPH(I2Cx));
   assert_param(IS_I2C_GET_FLAG(I2C_FLAG));
@@ -684,7 +683,7 @@ FlagStatus I2C_GetFlagStatus(I2C_TypeDef* I2Cx, uint32_t I2C_FLAG)
 */
 void I2C_ClearFlag(I2C_TypeDef* I2Cx, uint32_t I2C_FLAG)
 {
-  __IO uint32_t i2creg = 0, i2cxbase = 0;
+  __IO uint32_t i2cxbase = 0;
   /* Check the parameters */
   assert_param(IS_I2C_ALL_PERIPH(I2Cx));
   assert_param(IS_I2C_CLEAR_FLAG(I2C_FLAG));
