@@ -37,6 +37,9 @@ set(SRC_FILES
         ./project/bsp/timer/timer.c
         ./project/ui/ui_helpers.c
         ./project/ui/ui.c
+        ./project/ui/ui_img_indicator_ver_png.c
+        ./project/ui/ui_img_pot_hor_knob_png.c
+        ./project/ui/ui_img_pot_hor_line_tempo_png.c
 
 
         # ./project/lvgl/porting/lv_port_disp.c
