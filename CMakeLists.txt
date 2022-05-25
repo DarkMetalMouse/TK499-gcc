@@ -32,6 +32,7 @@ set(SRC_FILES
         ./Hal_lib/src/HAL_i2c.c
         ./Hal_lib/src/HAL_tim.c
         ./project/bsp/UART/UART.c
+        ./project/bsp/UART/ring_buffer.c
         ./project/bsp/TK499_I2C/TK499_I2C.c
         ./project/bsp/touch/touch_CTP.c
         ./project/bsp/timer/timer.c
