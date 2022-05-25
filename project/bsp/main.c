@@ -9,6 +9,15 @@
 #include "lv_port_disp.h"
 #include "lv_port_indev.h"
 #include "ui.h"
+#include <stdlib.h>
+#define MAX_LEN 80
+#define NUM_SLIDERS 5
+
+char input[MAX_LEN + 1]; // +1 for null char
+char volume_message[MAX_LEN + 1];
+
+lv_obj_t *sliders[NUM_SLIDERS];
+int values[NUM_SLIDERS] = {0};
 
 // void my_log_cb(const char *buf)
 // {
@@ -43,9 +52,49 @@ int main(void)
     lv_port_indev_init();
 
     ui_init();
+    sliders[0] = ui_Slider1;
+    sliders[1] = ui_Slider2;
+    sliders[2] = ui_Slider3;
+    sliders[3] = ui_Slider4;
+    sliders[4] = ui_Slider5;
 
     while (1)
     {
+        if (receive_until(input, '\n'))
+        {
+            lv_bar_set_value(ui_Bar1, atoi(strtok(input, "|")) * 29 / 100, LV_ANIM_OFF);
+            lv_bar_set_value(ui_Bar2, atoi(strtok(NULL, "|")) * 29 / 100, LV_ANIM_OFF);
+            lv_bar_set_value(ui_Bar3, atoi(strtok(NULL, "|")) * 29 / 100, LV_ANIM_OFF);
+            lv_bar_set_value(ui_Bar4, atoi(strtok(NULL, "|")) * 29 / 100, LV_ANIM_OFF);
+            lv_bar_set_value(ui_Bar5, atoi(strtok(NULL, "|")) * 29 / 100, LV_ANIM_OFF);
+        }
+        if (1)
+        {
+            int update = 0;
+            for (int i = 0; i < NUM_SLIDERS; i++)
+            {
+                int val = lv_slider_get_value(sliders[i]);
+                if (val != values[i])
+                {
+                    update = 1;
+                    values[i] = val;
+                }
+            }
+            if (update)
+            {
+                lv_snprintf(
+                    volume_message,
+                    sizeof(volume_message),
+                    "%d|%d|%d|%d|%d\r\n",
+                    (int)lv_slider_get_value(ui_Slider1),
+                    (int)lv_slider_get_value(ui_Slider2),
+                    (int)lv_slider_get_value(ui_Slider2),
+                    (int)lv_slider_get_value(ui_Slider3),
+                    (int)lv_slider_get_value(ui_Slider5));
+            }
+
+            send_str(volume_message);
+        }
         lv_timer_handler();
     }
 }
