@@ -88,8 +88,8 @@ int main(void)
                     "%d|%d|%d|%d|%d\r\n",
                     (int)lv_slider_get_value(ui_Slider1),
                     (int)lv_slider_get_value(ui_Slider2),
-                    (int)lv_slider_get_value(ui_Slider2),
                     (int)lv_slider_get_value(ui_Slider3),
+                    (int)lv_slider_get_value(ui_Slider4),
                     (int)lv_slider_get_value(ui_Slider5));
             }
 
